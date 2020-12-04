@@ -1,0 +1,60 @@
+* {
+  font-family: monospace;
+  margin-bottom: 1rem;
+}
+
+:root {
+  --canvas-width: 650px;
+  --border-width: 2px;
+  --image-width: calc(var(--canvas-width) + var(--border-width) * 2);
+}
+
+#app {
+  position: relative;
+  display: block;
+  width: var(--canvas-width);
+  height: var(--canvas-width);
+
+  border: var(--border-width) solid grey;
+}
+
+#app:after {
+  content: "";
+  position: absolute;
+  border: 2px dashed rgba(0, 0, 0, 0.2);
+  width: 80%;
+  height: 80%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+input[type="number"] {
+  width: 2.9rem;
+}
+
+.box {
+  position: relative;
+}
+.box p {
+  position: absolute;
+  bottom: 0;
+  left: 1rem;
+  color: white;
+}
+
+#done {
+  color: black;
+}
+
+img {
+  display: block;
+  width: var(--image-width);
+  height: auto;
+  max-height: var(--image-width);
+  max-width: 100%;
+
+  object-fit: contain;
+  object-position: left;
+}

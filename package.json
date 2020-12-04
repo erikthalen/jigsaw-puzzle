@@ -1,0 +1,20 @@
+{
+  "name": "jigsaw-puzzle",
+  "version": "1.0.0",
+  "description": "A canvas puzzle generator",
+  "main": "src/index.js",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "jigsaw",
+    "puzzle",
+    "canvas"
+  ],
+  "devDependencies": {
+    "express": "^4.17.1"
+  }
+}
