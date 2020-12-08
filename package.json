@@ -2,12 +2,15 @@
   "name": "jigsaw-puzzle",
   "version": "1.0.1",
   "description": "A canvas puzzle generator",
-  "main": "src/index.js",
+  "main": "dist/jigsaw-puzzle.min.js",
+  "module": "src/index.js",
   "files": [
-    "src"
+    "src",
+    "dist"
   ],
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "parcel build src/index.js"
   },
   "keywords": [
     "jigsaw",
