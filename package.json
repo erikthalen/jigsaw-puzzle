@@ -8,9 +8,12 @@
     "src",
     "dist"
   ],
+  "browserslist": [
+    "last 1 Chrome version"
+  ],
   "scripts": {
     "start": "node server.js",
-    "build": "parcel build src/index.js"
+    "build": "parcel build src/index.js -o jigsaw-puzzle.min.js"
   },
   "keywords": [
     "jigsaw",
