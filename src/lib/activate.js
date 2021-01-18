@@ -14,7 +14,7 @@ const isWithinY = (state, piece, e) =>
   (e.clientY - state.canvas.pos.y) * state.canvas.DPI <=
     piece.curPos.y + piece.height;
 
-const isClicked = (state, piece, e) =>
+export const isUnderCursor = (state, piece, e) =>
   isWithinX(state, piece, e) && isWithinY(state, piece, e);
 
 const getPiecePos = (state, piece, e) => ({
@@ -30,7 +30,7 @@ export const activate = (e) => (state) => ({
     mapReverse((piece, i, arr, acc) => ({
       ...piece,
       active:
-        !acc.find(isTruthy("active")) && isClicked(state, piece, e)
+        !acc.find(isTruthy("active")) && isUnderCursor(state, piece, e)
           ? getPiecePos(state, piece, e)
           : false,
     })),

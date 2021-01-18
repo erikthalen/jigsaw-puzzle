@@ -13,7 +13,7 @@
   ],
   "scripts": {
     "start": "node server.js",
-    "build": "parcel build src/index.js -o jigsaw-puzzle.min.js"
+    "build": "parcel build src/index.js -o jigsaw-puzzle.min.js --no-source-maps"
   },
   "keywords": [
     "jigsaw",
