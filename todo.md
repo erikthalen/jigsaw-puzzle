@@ -2,6 +2,8 @@
 - mobile support
 - dynamic piece shapes
 
+- create back/forground on drag (put active pieces in for- and rest in back)
+
 - breaks with config.pieces.x = 1 (that's not a puzzle though...)
 
 * refactor state-mutators to return new object

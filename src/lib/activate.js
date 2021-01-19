@@ -2,20 +2,7 @@ import { activeLast, mapReverse, sort, map } from "./../utils/array-helpers.js";
 import { isTruthy } from "./../utils/object-helpers.js";
 import { runIf } from "./../utils/run-if.js";
 import { pipe } from "./../utils/pipe.js";
-import { tap } from "./../utils/tap.js";
-
-const isWithinX = (state, piece, e) =>
-  (e.clientX - state.canvas.pos.x) * state.canvas.DPI >= piece.curPos.x &&
-  (e.clientX - state.canvas.pos.x) * state.canvas.DPI <=
-    piece.curPos.x + piece.width;
-
-const isWithinY = (state, piece, e) =>
-  (e.clientY - state.canvas.pos.y) * state.canvas.DPI >= piece.curPos.y &&
-  (e.clientY - state.canvas.pos.y) * state.canvas.DPI <=
-    piece.curPos.y + piece.height;
-
-export const isUnderCursor = (state, piece, e) =>
-  isWithinX(state, piece, e) && isWithinY(state, piece, e);
+import { isUnderCursor } from "./../utils/is-under-cursor.js";
 
 const getPiecePos = (state, piece, e) => ({
   x: (e.clientX - state.canvas.pos.x) * state.canvas.DPI - piece.curPos.x,

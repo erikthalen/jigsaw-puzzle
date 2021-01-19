@@ -16,7 +16,7 @@ import { snap } from "./lib/snap.js";
 import { status } from "./lib/status.js";
 import { gather } from "./lib/gather.js";
 import { clone } from "./lib/clone.js";
-import { changeCursor } from './lib/change-cursor.js'
+import { getCursor, setCursor } from './lib/cursor.js'
 
 export const puzzle = async ({
   element,
@@ -71,7 +71,7 @@ export const puzzle = async ({
     event(state.canvas).mousedown(
       (e) => (state = pipe(activate(e), paint)(state))
     ),
-    event(state.canvas).mousemove((e) => (state = pipe(changeCursor(e), move(e), paint)(state))),
+    event(state.canvas).mousemove((e) => (state = pipe(getCursor(e), move(e), paint, setCursor)(state))),
     event(document.body).mouseup(
       (e) => (state = pipe(snap, deactivate, status, paint, onChange)(state))
     ),

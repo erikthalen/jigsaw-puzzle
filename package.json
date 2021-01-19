@@ -13,14 +13,13 @@
   ],
   "scripts": {
     "start": "node server.js",
-    "build": "parcel build src/index.js -o jigsaw-puzzle.min.js --no-source-maps"
+    "clear": "rm -r -f dist",
+    "watch": "parcel -p 1234 watch index.html",
+    "build": "yarn clear && parcel build src/index.js -o jigsaw-puzzle.min.js --no-source-maps"
   },
   "keywords": [
     "jigsaw",
     "puzzle",
     "canvas"
-  ],
-  "devDependencies": {
-    "express": "^4.17.1"
-  }
+  ]
 }
