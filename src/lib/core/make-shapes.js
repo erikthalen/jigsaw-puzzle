@@ -1,6 +1,6 @@
-import { allSides, opposite, isVertical, sw } from "./../utils/sides.js";
-import { bezier, bezierInv } from "./../utils/bezier.js";
-import { random } from "./../utils/random.js";
+import { allSides, opposite, isVertical, sw } from "./../../utils/sides.js";
+import { bezier, bezierInv } from "./../../utils/bezier.js";
+import { random } from "./../../utils/random.js";
 
 export const makeShapes = (acc, piece) => {
   const getNeighbor = (id) => acc.find((piece) => piece.id === id);

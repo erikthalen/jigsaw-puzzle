@@ -1,4 +1,4 @@
-import { filterUniqe } from "./../utils/array-helpers.js";
+import { filterUniqe } from "./../../utils/array-helpers.js";
 
 // should return, not modify
 export const shareConnections = (state, piece, newPiece) => {

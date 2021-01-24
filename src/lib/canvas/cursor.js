@@ -1,6 +1,7 @@
-import { isUnderCursor } from './../utils/is-under-cursor.js'
+import { isUnderCursor } from '../../utils/is-under-cursor.js'
+import { tap } from '../../utils/tap.js'
 
-export const getCursor = (e) => state => {
+export const getCursor = (e) => tap(state => {
   const hovered = state.pieces.find((piece) => isUnderCursor(state, piece, e))
   const active = state.pieces.find(piece => piece.active)
   const allActive = state.pieces.every(piece => piece.active)
@@ -19,8 +20,8 @@ export const getCursor = (e) => state => {
     state.canvas.cursor = 'move'
     return
   }
-}
+})
 
-export const setCursor = state => {
+export const setCursor = tap(state => {
   state.canvas.element.style.cursor = state.canvas.cursor
-}
+})

@@ -12,9 +12,8 @@
     "last 1 Chrome version"
   ],
   "scripts": {
-    "start": "node server.js",
     "clear": "rm -r -f dist",
-    "watch": "parcel -p 1234 watch index.html",
+    "watch": "yarn clear && parcel -p 1234 watch index.html",
     "build": "yarn clear && parcel build src/index.js -o jigsaw-puzzle.min.js --no-source-maps"
   },
   "keywords": [

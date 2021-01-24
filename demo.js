@@ -28,7 +28,7 @@ const init = async () => {
   const options = {
     element: "#app",
     image: images[Math.floor((Date.now() / 1000) % images.length)],
-    pieces: { x: 10, y: 8 },
+    pieces: { x: 50, y: 40 },
     attraction: 40,
     size: 0.8,
     draggable: true,

@@ -1,6 +1,6 @@
 import { shareConnections } from "./share-connections.js";
 import { isClose } from "./is-close.js";
-import { same } from "./../utils/object-helpers.js";
+import { same } from "./../../utils/object-helpers.js";
 
 const moveConnections = (state, [...pieceIds], distance) => {
   pieceIds.forEach((id) => {

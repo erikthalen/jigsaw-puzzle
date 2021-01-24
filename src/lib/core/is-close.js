@@ -1,4 +1,4 @@
-import { isVertical, nw } from "./../utils/sides.js";
+import { isVertical, nw } from "./../../utils/sides.js";
 
 // is piece1 close to piece2
 export const isClose = (p1, p2, state, side) => {

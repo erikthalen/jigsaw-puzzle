@@ -1,8 +1,8 @@
-import { activeLast, mapReverse, sort, map } from "./../utils/array-helpers.js";
-import { isTruthy } from "./../utils/object-helpers.js";
-import { runIf } from "./../utils/run-if.js";
-import { pipe } from "./../utils/pipe.js";
-import { isUnderCursor } from "./../utils/is-under-cursor.js";
+import { activeLast, mapReverse, sort, map } from "../../utils/array-helpers.js";
+import { isTruthy } from "../../utils/object-helpers.js";
+import { runIf } from "../../utils/run-if.js";
+import { pipe } from "../../utils/pipe.js";
+import { isUnderCursor } from "../../utils/is-under-cursor.js";
 
 const getPiecePos = (state, piece, e) => ({
   x: (e.clientX - state.canvas.pos.x) * state.canvas.DPI - piece.curPos.x,
