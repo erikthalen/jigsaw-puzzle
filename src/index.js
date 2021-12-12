@@ -19,6 +19,7 @@ import { clone } from './lib/core/clone.js'
 import { makeLayers } from './lib/canvas/make-layers.js'
 import { getCursor, setCursor } from './lib/canvas/cursor.js'
 import { moveForeground } from './lib/core/move-foreground.js'
+import './utils/safariDrawImageFix.js'
 
 export const puzzle = async ({
   element,
@@ -28,6 +29,7 @@ export const puzzle = async ({
   attraction = 20,
   size = 0.8,
   draggable = false,
+  aligned = false,
   onComplete = () => {},
   onChange: changecb = () => {},
 }) => {
@@ -44,7 +46,7 @@ export const puzzle = async ({
   const image = restore.image || (await loadImage(img))
   const puzzle = () =>
     restore.puzzle ||
-    makePuzzle(ps, image, attraction, container, size, draggable, onComplete)
+    makePuzzle(ps, image, attraction, container, size, draggable, aligned, onComplete)
   const pieces = restore.pieces || makePieces(puzzle())
 
   // passed on-change callback ---------------------------------
@@ -61,6 +63,7 @@ export const puzzle = async ({
   // 'global' game state ---------------------------------------
   let state = initState()
 
+  console.log(state)
   // initial paint ---------------------------------------------
   state = restore.puzzle
     ? pipe(paint)(state)

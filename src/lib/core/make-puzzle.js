@@ -5,6 +5,7 @@ export const makePuzzle = (
   container,
   size,
   draggable,
+  aligned,
   onComplete
 ) => {
   const { width, height } = getComputedStyle(container);
@@ -25,6 +26,7 @@ export const makePuzzle = (
     scale,
     occupy: size,
     draggable,
+    aligned,
     onComplete,
   };
 };
