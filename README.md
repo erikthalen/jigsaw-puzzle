@@ -1,11 +1,9 @@
 [demo](https://gto3y.csb.app/)
 
 ```js
-// index.js
 import { puzzle } from 'jigsaw-puzzle'
 
-
-const P = await puzzle({
+const p = await puzzle({
   element: '#app',
   image: 'image.jpg',
   pieces: { x: 6, y: 4 },
@@ -18,8 +16,8 @@ const P = await puzzle({
 })
 
 
-P.newGame()       // start over
-P.getState()      // save game
-P.setState(state) // load game
-P.destroy()       // kill puzzle
+p.newGame()              // start over
+let state = p.getState() // save game
+p.setState(state)        // load game
+p.destroy()              // kill puzzle
 ```

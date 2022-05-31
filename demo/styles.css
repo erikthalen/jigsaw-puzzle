@@ -4,33 +4,21 @@
 }
 
 :root {
-  --canvas-width: 40vw;
+  --canvas-width: 700px;
   --border-width: 2px;
   --image-width: calc(var(--canvas-width) + var(--border-width) * 2);
 }
 
-#app, #app2 {
+#app {
   position: relative;
-  display: inline-block;
+  display: block;
   width: var(--canvas-width);
   height: var(--canvas-width);
 
   border: var(--border-width) solid grey;
 }
 
-#app:after {
-  content: "";
-  position: absolute;
-  border: 2px dashed rgba(0, 0, 0, 0.2);
-  width: 80%;
-  height: 80%;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-input[type="number"] {
+input[type='number'] {
   width: 2.9rem;
 }
 

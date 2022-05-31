@@ -1,4 +1,3 @@
-import { $ } from './utils/dom.js'
 import { pipe } from './utils/pipe.js'
 import { tap } from './utils/tap.js'
 import { event } from './utils/event-listeners.js'
@@ -34,7 +33,8 @@ export const puzzle = async ({
   onChange: changecb = () => {},
 }) => {
   // game board
-  const container = typeof element === 'string' ? $(element) : element
+  const container =
+    typeof element === 'string' ? document.querySelector(element) : element
 
   if (!container) {
     console.warn(`Couldn't find element: ${element}`)
@@ -46,7 +46,16 @@ export const puzzle = async ({
   const image = restore.image || (await loadImage(img))
   const puzzle = () =>
     restore.puzzle ||
-    makePuzzle(ps, image, attraction, container, size, draggable, aligned, onComplete)
+    makePuzzle(
+      ps,
+      image,
+      attraction,
+      container,
+      size,
+      draggable,
+      aligned,
+      onComplete
+    )
   const pieces = restore.pieces || makePieces(puzzle())
 
   // passed on-change callback ---------------------------------
@@ -63,7 +72,6 @@ export const puzzle = async ({
   // 'global' game state ---------------------------------------
   let state = initState()
 
-  console.log(state)
   // initial paint ---------------------------------------------
   state = restore.puzzle
     ? pipe(paint)(state)
@@ -123,5 +131,3 @@ export const puzzle = async ({
     },
   }
 }
-
-export default puzzle

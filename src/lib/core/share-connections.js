@@ -1,8 +1,8 @@
-import { filterUniqe } from "./../../utils/array-helpers.js";
+import { filterUnique } from "./../../utils/array-helpers.js";
 
 // should return, not modify
 export const shareConnections = (state, piece, newPiece) => {
-  piece.connections = filterUniqe([
+  piece.connections = filterUnique([
     piece.id,
     newPiece.id,
     ...piece.connections,
@@ -11,11 +11,11 @@ export const shareConnections = (state, piece, newPiece) => {
 
   piece.connections.forEach((id) => {
     const connection = state.pieces.find((piece) => piece.id === id);
-    connection.connections = filterUniqe(piece.connections);
+    connection.connections = filterUnique(piece.connections);
   });
 
   newPiece.connections.forEach((id) => {
     const connection = state.pieces.find((piece) => piece.id === id);
-    connection.connections = filterUniqe(piece.connections);
+    connection.connections = filterUnique(piece.connections);
   });
 };

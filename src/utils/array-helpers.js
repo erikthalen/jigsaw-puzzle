@@ -7,7 +7,7 @@ export const shuffle = (xs) =>
     .map((x) => x[1]);
 
 // shallow filtering
-export const filterUniqe = (xs) => [...new Set(xs)];
+export const filterUnique = (xs) => [...new Set(xs)];
 export const randomElement = (xs) => xs[floor(random() * xs.length)];
 export const activeLast = (x, y) => (y.active ? -1 : 1);
 export const connectedFirst = (x, y) =>

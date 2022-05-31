@@ -1,24 +1,23 @@
 {
   "name": "jigsaw-puzzle",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "A canvas puzzle generator",
-  "main": "dist/jigsaw-puzzle.min.js",
-  "module": "src/index.js",
+  "main": "dist/jigsaw-puzzle.cjs.js",
+  "module": "dist/jigsaw-puzzle.esm.mjs",
   "files": [
-    "src",
     "dist"
   ],
-  "browserslist": [
-    "last 1 Chrome version"
-  ],
   "scripts": {
-    "clear": "rm -r -f dist",
-    "watch": "yarn clear && parcel -p 1234 watch index.html",
-    "build": "yarn clear && parcel build src/index.js -o jigsaw-puzzle.min.js --no-source-maps"
+    "dev": "rollup -c -w | node demo/server.mjs"
   },
   "keywords": [
     "jigsaw",
     "puzzle",
     "canvas"
-  ]
+  ],
+  "devDependencies": {
+    "express": "^4.18.1",
+    "rollup": "^2.75.4",
+    "rollup-plugin-terser": "^7.0.2"
+  }
 }
