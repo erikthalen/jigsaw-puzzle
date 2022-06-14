@@ -1,12 +1,23 @@
-export const move = ({ clientX, clientY }) => (state) => ({
-  ...state,
-  pieces: state.pieces.map((piece) => ({
-    ...piece,
-    curPos: piece.active
-      ? {
-          x: (clientX - state.canvas.pos.x) * state.canvas.DPI - piece.active.x,
-          y: (clientY - state.canvas.pos.y) * state.canvas.DPI - piece.active.y,
-        }
-      : piece.curPos,
-  })),
-});
+import { getTransformedPosition } from '../../utils/pan.js'
+
+export const move =
+  ({ offsetX, offsetY }) =>
+  state => {
+    const [x, y] = getTransformedPosition(
+      { x: offsetX, y: offsetY },
+      state.canvas.DPI
+    )
+
+    return {
+      ...state,
+      pieces: state.pieces.map(piece => ({
+        ...piece,
+        curPos: piece.active
+          ? {
+              x: x - piece.active.x,
+              y: y - piece.active.y,
+            }
+          : piece.curPos,
+      })),
+    }
+  }
