@@ -33,6 +33,7 @@ const options = {
   pieces: { x: 6, y: 5 },
   attraction: 3,
   aligned: false,
+  // zoom: 1,
   onComplete,
   onChange,
 }
@@ -46,6 +47,15 @@ Y.value = options.pieces.y
 source.value = options.image
 
 let p = await puzzle(options)
+
+// const tick = () => {
+//   if(p.getZoom() >= 0.1) {
+//     requestAnimationFrame(tick)
+//   }
+
+//   p.setZoom(0.99)
+// }
+// tick()
 
 newGame.addEventListener('click', async () => p.newGame())
 

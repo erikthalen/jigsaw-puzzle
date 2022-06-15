@@ -25,6 +25,7 @@ export const puzzle = async ({
   pieces = { x: 6, y: 4 },
   attraction = 5,
   aligned = false,
+  zoom: initZoom,
   onComplete = () => {},
   onChange: changecb = () => {},
 }) => {
@@ -61,11 +62,13 @@ export const puzzle = async ({
 
   let state = pipe(shuffle(aligned), paint)(initState())
 
-  pan(canvas, {
-    initScale: Math.min(
-      window.innerWidth / state.puzzle.width,
-      window.innerHeight / state.puzzle.height
-    ),
+  const { zoom } = pan(canvas, {
+    initScale:
+      initZoom ||
+      Math.min(
+        window.innerWidth / state.puzzle.width,
+        window.innerHeight / state.puzzle.height
+      ),
   })
 
   canvas.addEventListener('pan', e => {
@@ -150,5 +153,7 @@ export const puzzle = async ({
       state = null
       eventListeners.map(listener => listener.remove())
     },
+    setZoom: zoom,
+    getZoom: () => state.ui.zoom,
   }
 }

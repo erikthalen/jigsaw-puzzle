@@ -12,9 +12,8 @@ export const getCursor = e =>
       })
     )
     const active = state.puzzle.pieces.find(piece => piece.active)
-    const allActive = state.puzzle.pieces.every(piece => piece.active)
 
-    if (active && !allActive) {
+    if (active) {
       state.ui.cursor = 'grabbing'
       return
     }

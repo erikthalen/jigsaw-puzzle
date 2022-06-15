@@ -3,7 +3,10 @@ const clamp = (val, min, max) => {
 }
 
 let scale = 1
-const position = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
+const position = {
+  x: window.innerWidth / 2,
+  y: window.innerHeight / 2,
+}
 
 const move = ({ x, y, bounding = { x: Infinity, y: Infinity } }) => {
   position.x = position.x + x
@@ -142,6 +145,20 @@ export default (
         dispatch(move({ x: -e.deltaX, y: -e.deltaY }))
       }
     })
+  }
+
+  return {
+    zoom: newScale => {
+      zoom({
+        focal: {
+          x: (window.innerWidth / 2) * dpi,
+          y: (window.innerHeight / 2) * dpi,
+        },
+        zoom: newScale,
+      })
+
+      dispatch({ scale, position })
+    },
   }
 }
 
