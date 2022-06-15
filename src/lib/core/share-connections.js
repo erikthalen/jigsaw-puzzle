@@ -10,12 +10,12 @@ export const shareConnections = (state, piece, newPiece) => {
   ]);
 
   piece.connections.forEach((id) => {
-    const connection = state.pieces.find((piece) => piece.id === id);
+    const connection = state.puzzle.pieces.find((piece) => piece.id === id);
     connection.connections = filterUnique(piece.connections);
   });
 
   newPiece.connections.forEach((id) => {
-    const connection = state.pieces.find((piece) => piece.id === id);
+    const connection = state.puzzle.pieces.find((piece) => piece.id === id);
     connection.connections = filterUnique(piece.connections);
   });
 };

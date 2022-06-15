@@ -1,19 +1,19 @@
 import { allSides } from '../../utils/sides.js'
 
-export const paintPiece = (state, customContext) => piece => {
-  const { image } = state.image
-  const { ctx, DPI = 2 } = customContext || state.canvas
-  const { scale, occupy } = state.puzzle
-  const shapeOffset = Math.max(piece.width, piece.height)
+export const paintPiece = state => piece => {
+  const { ctx, image } = state.ui
+  const pieceWidth = state.puzzle.width / state.puzzle.size.x
+  const pieceHeight = state.puzzle.height / state.puzzle.size.y
+  const shapeOffset = Math.max(pieceWidth, pieceHeight)
 
   ctx.save()
   ctx.beginPath()
-  ctx.translate(piece.curPos.x, piece.curPos.y + piece.height)
+  ctx.translate(piece.pos.x, piece.pos.y + pieceHeight)
 
   allSides.forEach(side => {
     drawSide(ctx, piece.shapes[side], {
-      x: side === 'top' || side === 'bottom' ? -piece.height : -piece.width,
-      y: side === 'top' || side === 'bottom' ? piece.width : piece.height,
+      x: side === 'top' || side === 'bottom' ? -pieceHeight : -pieceWidth,
+      y: side === 'top' || side === 'bottom' ? pieceWidth : pieceHeight,
     })
   })
 
@@ -22,14 +22,14 @@ export const paintPiece = (state, customContext) => piece => {
 
   ctx.drawImage(
     image, // image
-    (piece.orgPos.x - shapeOffset) / scale / DPI / occupy, // what part of image
-    (piece.orgPos.y - shapeOffset) / scale / DPI / occupy, // what part of image
-    (piece.width + shapeOffset * 2) / scale / DPI / occupy, // how much of image
-    (piece.height + shapeOffset * 2) / scale / DPI / occupy, // how much of image
-    piece.curPos.x / state.canvas.width - shapeOffset, // where on canvas
-    piece.curPos.y / state.canvas.height - shapeOffset - piece.height, // where on canvas
-    piece.width + shapeOffset * 2, // how big on canvas
-    piece.height + shapeOffset * 2 // how big on canvas
+    piece.origin.x * pieceWidth - shapeOffset, // what part of image
+    piece.origin.y * pieceHeight - shapeOffset, // what part of image
+    pieceWidth + shapeOffset * 2, // how much of image
+    pieceHeight + shapeOffset * 2, // how much of image
+    piece.pos.x / state.puzzle.width - shapeOffset, // where on canvas
+    piece.pos.y / state.puzzle.height - shapeOffset - pieceHeight, // where on canvas
+    pieceWidth + shapeOffset * 2, // how big on canvas
+    pieceHeight + shapeOffset * 2 // how big on canvas
   )
 
   ctx.restore()

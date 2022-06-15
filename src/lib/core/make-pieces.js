@@ -1,25 +1,23 @@
-import { getNeighbors } from "./../../utils/get-neighbors.js";
-import { makeShapes } from "./make-shapes.js";
+import { getNeighbors } from './../../utils/get-neighbors.js'
+import { makeShapes } from './make-shapes.js'
 
-export const makePieces = (puzzle) => {
-  const piecesAmount = [...Array(puzzle.rows * puzzle.cols)];
-  const width = (puzzle.width / puzzle.cols) * puzzle.occupy;
-  const height = (puzzle.height / puzzle.rows) * puzzle.occupy;
+export const makePieces = (image, amount) => {
+  const piecesAmount = [...Array(amount.y * amount.x)]
+  const width = image.width / amount.x
+  const height = image.height / amount.y
   const pieces = piecesAmount
-    .map((x, i) => ({
+    .map((_, i) => ({
       id: i,
-      orgPos: {
-        x: (i % puzzle.cols) * width,
-        y: Math.floor(i / puzzle.cols) * height,
+      origin: {
+        x: i % amount.x,
+        y: Math.floor(i / amount.x),
       },
-      curPos: { x: 0, y: 0 },
-      width,
-      height,
-      neighbors: getNeighbors(i, puzzle.rows, puzzle.cols),
+      pos: { x: 0, y: 0 },
+      neighbors: getNeighbors(i, amount.y, amount.x),
       active: false, // if clicked/dragged
       connections: [], // every other piece this one is snapped together with
     }))
-    .reduce(makeShapes, []);
+    .reduce(makeShapes(width, height), [])
 
-  return pieces;
-};
+  return pieces
+}

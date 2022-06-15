@@ -1,38 +1,33 @@
-import { pipe } from './utils/pipe.js'
-import { tap } from './utils/tap.js'
+import { pipe, tap } from './utils/utils.js'
 import { event } from './utils/event-listeners.js'
 
-import { makeCanvas } from './lib/canvas/make-canvas.js'
-import { loadImage } from './lib/canvas/load-image.js'
-import { makePuzzle } from './lib/core/make-puzzle.js'
 import { makePieces } from './lib/core/make-pieces.js'
 import { shuffle } from './lib/core/shuffle.js'
-import { paint } from './lib/canvas/paint.js'
-import { activate } from './lib/core/activate.js'
-import { deactivate } from './lib/core/deactivate.js'
+import { activate, deactivate } from './lib/core/activate.js'
 import { move } from './lib/core/move.js'
 import { snap } from './lib/core/snap.js'
 import { status } from './lib/core/status.js'
-import { gather } from './lib/core/gather.js'
 import { clone } from './lib/core/clone.js'
 import { getCursor, setCursor } from './lib/canvas/cursor.js'
 import './utils/safariDrawImageFix.js'
 import pan from './utils/pan.js'
-import { clearCanvas } from './lib/canvas/clear-canvas.js'
+import {
+  clearCanvas,
+  makeCanvas,
+  loadImage,
+  paint,
+  resize,
+} from './lib/canvas.js'
 
 export const puzzle = async ({
   element,
-  restore = {},
   image: img = '',
-  pieces: ps = { x: 6, y: 4 },
-  attraction = 20,
-  size = 0.8,
-  draggable = false,
+  pieces = { x: 6, y: 4 },
+  attraction = 5,
   aligned = false,
   onComplete = () => {},
   onChange: changecb = () => {},
 }) => {
-  // game board
   const container =
     typeof element === 'string' ? document.querySelector(element) : element
 
@@ -41,63 +36,74 @@ export const puzzle = async ({
     return
   }
 
-  // initial setup ---------------------------------------------
-  const canvas = makeCanvas(container)
+  const { canvas, ctx } = makeCanvas(container)
+  const { image, width, height } = await loadImage(img)
 
-  const image = restore.image || (await loadImage(img))
-  const puzzle = () =>
-    restore.puzzle ||
-    makePuzzle(
-      ps,
-      image,
-      attraction,
-      container,
-      size,
-      draggable,
-      aligned,
-      onComplete
-    )
-  const pieces = restore.pieces || makePieces(puzzle())
-
-  // passed on-change callback ---------------------------------
-  const onChange = typeof changecb === 'function' && tap(pipe(clone, changecb))
-
-  // initial state ---------------------------------------------
   const initState = () => ({
-    scale: 1,
-    position: { x: 0, y: 0 },
-    image,
-    canvas,
-    pieces,
-    puzzle: puzzle(),
+    ui: {
+      zoom: 1,
+      position: { x: 0, y: 0 },
+      canvas,
+      ctx,
+      image,
+      cursor: 'default',
+    },
+    puzzle: {
+      done: false,
+      startTime: Date.now(),
+      attraction,
+      width,
+      height,
+      size: { x: pieces.x, y: pieces.y },
+      pieces: makePieces(image, pieces),
+    },
   })
 
-  // 'global' game state ---------------------------------------
-  let state = initState()
+  let state = pipe(shuffle(aligned), paint)(initState())
 
-  pan(canvas.element)
+  pan(canvas, {
+    initScale: Math.min(
+      window.innerWidth / state.puzzle.width,
+      window.innerHeight / state.puzzle.height
+    ),
+  })
 
-  canvas.element.addEventListener('pan', e => {
+  canvas.addEventListener('pan', e => {
     e.preventDefault()
     const {
       detail: { scale, position },
     } = e
 
-    state.scale = scale
-    state.position = position
+    state.ui.zoom = scale
+    state.ui.position = position
 
     clearCanvas(state)
-    canvas.ctx.setTransform(scale, 0, 0, scale, position.x, position.y)
+    ctx.setTransform(scale, 0, 0, scale, position.x, position.y)
     paint(state)
   })
 
-  // initial paint ---------------------------------------------
-  state = restore.puzzle ? pipe(paint)(state) : pipe(shuffle, paint)(state)
+  // passed on-change callback ---------------------------------
+  const onChange =
+    typeof changecb === 'function'
+      ? tap(pipe(clone, changecb))
+      : () => () => state
 
   // user interactions -----------------------------------------
   const eventListeners = [
-    event(window).resize(e => (state = pipe(gather, paint)(state))),
-    event(state.canvas).mousedown(
+    event(window).resize(() => {
+      resize(state.ui.canvas)
+      clearCanvas(state)
+      ctx.setTransform(
+        state.ui.zoom,
+        0,
+        0,
+        state.ui.zoom,
+        state.ui.position.x,
+        state.ui.position.y
+      )
+      paint(state)
+    }),
+    event(state.ui.canvas).pointerdown(
       e =>
         (state = pipe(
           activate(e),
@@ -107,10 +113,10 @@ export const puzzle = async ({
           paint
         )(state))
     ),
-    event(state.canvas).mousemove(e => {
+    event(state.ui.canvas).pointermove(e => {
       state = pipe(getCursor(e), move(e), clearCanvas, paint, setCursor)(state)
     }),
-    event(document.body).mouseup(
+    event(document.body).pointerup(
       e =>
         (state = pipe(
           snap,
@@ -120,20 +126,25 @@ export const puzzle = async ({
           paint,
           setCursor,
           onChange,
-          status
+          status(onComplete),
+          tap(() => {
+            console.log(state)
+          })
         )(state))
     ),
   ]
 
-  // exposed api -----------------------------------------------
   return {
-    newGame: () => (state = pipe(shuffle, paint)(initState())),
+    newGame: () =>
+      (state = pipe(shuffle(aligned), clearCanvas, paint)(initState())),
     getState: () => clone(state),
-    setState: newState => (state = pipe(clone, paint)(newState)),
-    update: () => (state = pipe(paint)(state)),
+    setState: puzzle => {
+      state.puzzle = puzzle
+      state = pipe(clearCanvas, paint)(state)
+    },
     destroy: () => {
       if (element.tagName !== 'CANVAS') {
-        state.canvas.element.remove()
+        state.ui.canvas.remove()
       }
 
       state = null

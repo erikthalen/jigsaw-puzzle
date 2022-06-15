@@ -3,7 +3,7 @@ const clamp = (val, min, max) => {
 }
 
 let scale = 1
-const position = { x: 0, y: 0 }
+const position = { x: window.innerWidth / 2, y: window.innerHeight / 2 }
 
 const move = ({ x, y, bounding = { x: Infinity, y: Infinity } }) => {
   position.x = position.x + x
@@ -44,7 +44,7 @@ function isTouchDevice() {
 
 export default (
   canvas,
-  { dpi = window.devicePixelRatio, bounding = null } = {}
+  { dpi = window.devicePixelRatio, bounding = null, initScale = 1 } = {}
 ) => {
   canvas.style.touchAction = 'none'
   canvas.style.userSelect = 'none'
@@ -53,6 +53,7 @@ export default (
 
   let fingers = {}
   let lastDistance = null
+  scale = initScale
 
   const dispatch = detail => {
     canvas.dispatchEvent(
@@ -64,6 +65,8 @@ export default (
       })
     )
   }
+
+  setTimeout(() => dispatch({ scale, position }))
 
   const handlePointerdown = e => {
     e.preventDefault()

@@ -1,23 +1,34 @@
-import { random } from './../../utils/random.js'
-import { shuffleArray } from './../../utils/shuffleArray.js'
+import { random } from './../../utils/utils.js'
+import { shuffleArray } from './../../utils/array-helpers'
 
-export const shuffle = state => ({
-  ...state,
-  pieces: state.puzzle.aligned
-    ? shuffleArray(state.pieces).map((piece, i) => ({
-        ...piece,
-        connections: [],
-        curPos: {
-          x: (i % state.puzzle.cols) * state.pieces[0].width * 1.5,
-          y: Math.floor(i / state.puzzle.cols) * state.pieces[0].height * 1.5,
-        },
-      }))
-    : state.pieces.map((piece, i) => ({
-        ...piece,
-        connections: [],
-        curPos: {
-          x: random() * (state.canvas.width - state.pieces[0].width),
-          y: random() * (state.canvas.height - state.pieces[0].height),
-        },
-      })),
-})
+export const shuffle =
+  (aligned = false) =>
+  state => ({
+    ...state,
+    puzzle: {
+      ...state.puzzle,
+      pieces: aligned
+        ? shuffleArray(state.puzzle.pieces).map((piece, i) => ({
+            ...piece,
+            connections: [],
+            pos: {
+              x:
+                (((i % state.puzzle.size.x) * state.puzzle.width) /
+                  state.puzzle.size.x) *
+                1.5,
+              y:
+                ((Math.floor(i / state.puzzle.size.x) * state.puzzle.height) /
+                  state.puzzle.size.y) *
+                1.5,
+            },
+          }))
+        : state.puzzle.pieces.map((piece, i) => ({
+            ...piece,
+            connections: [],
+            pos: {
+              x: (random() * 2 - 0.5) * state.puzzle.width,
+              y: (random() * 2 - 0.5) * state.puzzle.height,
+            },
+          })),
+    },
+  })

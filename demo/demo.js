@@ -15,23 +15,23 @@ const images = [
 ]
 
 const onComplete = state => {
-  const done = $('#done')
-  done.innerHTML = `Done! In ${(
-    (Date.now() - state.puzzle.timeStamp) /
-    1000
-  ).toFixed(1)}s`
-  done.style.display = 'block'
+  // const done = $('#done')
+  // done.innerHTML = `Done! In ${(
+  //   (Date.now() - state.puzzle.timeStamp) /
+  //   1000
+  // ).toFixed(1)}s`
+  // done.style.display = 'block'
 }
 
-const onChange = state => {}
+const onChange = state => {
+  // console.log(state)
+}
 
 const options = {
   element: '#app',
   image: images[Math.floor((Date.now() / 1000) % images.length)],
   pieces: { x: 6, y: 5 },
-  attraction: 40,
-  size: 0.8,
-  draggable: true,
+  attraction: 3,
   aligned: false,
   onComplete,
   onChange,

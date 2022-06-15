@@ -1,11 +1,11 @@
-export const status = (state) => {
+export const status = onComplete => state => {
   if (
-    state.pieces[0].connections.length ===
-      state.puzzle.rows * state.puzzle.cols &&
+    state.puzzle.pieces[0].connections.length ===
+      state.puzzle.size.y * state.puzzle.size.x &&
     !state.puzzle.done
   ) {
-    state.puzzle.done = true;
-    state.puzzle.onComplete(state);
+    state.puzzle.done = true
+    onComplete(state)
   }
-  return state;
-};
+  return state
+}
