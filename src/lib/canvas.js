@@ -26,6 +26,9 @@ export const makeCanvas = element => {
     element.appendChild(canvas)
   }
 
+  canvas.style.width = '100%'
+  canvas.style.height = '100%'
+
   resize(canvas)
 
   return {
