@@ -1,7 +1,7 @@
 [demo](https://gto3y.csb.app/)
 
 ```js
-import puzzle from 'jigsaw-puzzle'
+import { puzzle } from 'jigsaw-puzzle'
 
 const p = await puzzle({
   element: '#app',
