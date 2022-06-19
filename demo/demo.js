@@ -6,12 +6,13 @@ const solution = $('#solution')
 const newGame = $('#new-game')
 const saveGame = $('#save-game')
 const loadGame = $('#load-game')
-const source = $('#source')
+// const source = $('#source')
 const X = $('#x')
 const Y = $('#y')
 
 const images = [
   'https://artsourceinternational.com/wp-content/uploads/2018/04/WOR0006.jpg',
+  'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fmedicinetoday.com.au%2Fsites%2Fdefault%2Ffiles%2FDermQuiz-Figure.jpg&f=1&nofb=1',
 ]
 
 const onComplete = state => {
@@ -24,15 +25,15 @@ const onComplete = state => {
 }
 
 const onChange = state => {
-  // console.log(state)
+  console.log(state)
 }
 
 const options = {
   element: '#app',
   image: images[Math.floor((Date.now() / 1000) % images.length)],
-  pieces: { x: 6, y: 5 },
+  pieces: { x: 3, y: 2 },
   attraction: 3,
-  aligned: false,
+  aligned: true,
   // zoom: 1,
   onComplete,
   onChange,
@@ -41,10 +42,10 @@ const options = {
 let saveFile = {}
 
 let image = options.image
-solution.src = image
+// solution.src = image
 X.value = options.pieces.x
 Y.value = options.pieces.y
-source.value = options.image
+// source.value = options.image
 
 let p = await puzzle(options)
 

@@ -1,10 +1,9 @@
 import { isVertical, nw } from './../../utils/sides.js'
 
 // is piece1 close to piece2
-export const isClose = (p1, p2, state, side) => {
-  const { attraction, width, height, size } = state.puzzle
-  const snapArea =
-    (Math.max(state.puzzle.width, state.puzzle.height) * attraction) / 100
+export const isClose = (p1, p2, puzzle, side) => {
+  const { attraction, width, height, size } = puzzle
+  const snapArea = (Math.max(puzzle.width, puzzle.height) * attraction) / 100
 
   const XY = isVertical(side) ? 'y' : 'x'
   const invXY = XY === 'x' ? 'y' : 'x'

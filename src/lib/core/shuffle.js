@@ -1,34 +1,41 @@
 import { random } from './../../utils/utils.js'
 import { shuffleArray } from './../../utils/array-helpers'
 
+const randomBetween = (min, max) => {
+  return Math.random() * max - min
+}
+
 export const shuffle =
   (aligned = false) =>
-  state => ({
-    ...state,
-    puzzle: {
-      ...state.puzzle,
-      pieces: aligned
-        ? shuffleArray(state.puzzle.pieces).map((piece, i) => ({
-            ...piece,
-            connections: [],
-            pos: {
-              x:
-                (((i % state.puzzle.size.x) * state.puzzle.width) /
-                  state.puzzle.size.x) *
-                1.5,
-              y:
-                ((Math.floor(i / state.puzzle.size.x) * state.puzzle.height) /
-                  state.puzzle.size.y) *
-                1.5,
-            },
-          }))
-        : state.puzzle.pieces.map((piece, i) => ({
-            ...piece,
-            connections: [],
-            pos: {
-              x: (random() * 2 - 0.5) * state.puzzle.width,
-              y: (random() * 2 - 0.5) * state.puzzle.height,
-            },
-          })),
-    },
+  puzzle => ({
+    ...puzzle,
+    pieces: aligned
+      ? shuffleArray(puzzle.pieces).map((piece, i) => ({
+          ...piece,
+          connections: [],
+          pos: {
+            x:
+              (((i % puzzle.size.x) * puzzle.width) / puzzle.size.x) * 2 +
+              randomBetween(
+                -puzzle.width / puzzle.size.x,
+                puzzle.width / puzzle.size.x
+              ) - puzzle.width / 1.5,
+            y:
+              ((Math.floor(i / puzzle.size.x) * puzzle.height) /
+                puzzle.size.y) *
+                2 +
+              randomBetween(
+                -puzzle.height / puzzle.size.y,
+                puzzle.height / puzzle.size.y
+              ) - puzzle.height / 1.5,
+          },
+        }))
+      : puzzle.pieces.map((piece, i) => ({
+          ...piece,
+          connections: [],
+          pos: {
+            x: (random() * 2 - 0.5) * puzzle.width,
+            y: (random() * 2 - 0.5) * puzzle.height,
+          },
+        })),
   })

@@ -1,11 +1,14 @@
-export const status = onComplete => state => {
-  if (
-    state.puzzle.pieces[0].connections.length ===
-      state.puzzle.size.y * state.puzzle.size.x &&
-    !state.puzzle.done
-  ) {
-    state.puzzle.done = true
-    onComplete(state)
+import { tap } from '../../utils/utils'
+
+export const status = tap(puzzle => {
+  if (puzzle.status === 'active') {
+    puzzle.moves = puzzle.moves + 1
   }
-  return state
-}
+
+  if (
+    puzzle.pieces[0].connections.length === puzzle.size.y * puzzle.size.x &&
+    !puzzle.done
+  ) {
+    puzzle.done = true
+  }
+})

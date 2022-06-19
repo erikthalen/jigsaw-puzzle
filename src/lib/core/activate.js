@@ -3,21 +3,22 @@ import { isTruthy } from '../../utils/object-helpers.js'
 import { pipe, runIf } from '../../utils/utils.js'
 import { isUnderCursor } from '../../utils/is-under-cursor.js'
 import { getTransformedPosition } from '../../utils/pan.js'
+import { tap } from '../../utils/utils.js'
 
-const getPiecePos = (piece, e) => {
-  const [x, y] = getTransformedPosition({ x: e.offsetX, y: e.offsetY })
+const getPiecePos = (piece, { x, y }) => {
+  const [xpos, ypos] = getTransformedPosition({ x, y })
 
   return {
-    x: x - piece.pos.x,
-    y: y - piece.pos.y,
+    x: xpos - piece.pos.x,
+    y: ypos - piece.pos.y,
   }
 }
 
 // pieces gets painted bottom to top, we need to check in reverse order
-export const activate = e => state => ({
-  ...state,
-  puzzle: {
-    ...state.puzzle,
+export const activate =
+  ({ x, y }) =>
+  puzzle => ({
+    ...puzzle,
     pieces: pipe(
       // activate clicked piece (first occurrence)
       mapReverse((piece, i, arr, acc) => ({
@@ -25,12 +26,12 @@ export const activate = e => state => ({
         active:
           !acc.find(isTruthy('active')) &&
           isUnderCursor(piece, {
-            x: e.offsetX,
-            y: e.offsetY,
-            width: state.puzzle.width / state.puzzle.size.x,
-            height: state.puzzle.height / state.puzzle.size.y,
+            x,
+            y,
+            width: puzzle.width / puzzle.size.x,
+            height: puzzle.height / puzzle.size.y,
           })
-            ? getPiecePos(piece, e)
+            ? getPiecePos(piece, { x, y })
             : false,
       })),
 
@@ -38,7 +39,7 @@ export const activate = e => state => ({
         ...piece,
         // activate the active piece's connections
         active: arr.find(p => p.active && p.connections.includes(piece.id))
-          ? getPiecePos(piece, e)
+          ? getPiecePos(piece, { x, y })
           : piece.active,
       })),
 
@@ -46,20 +47,15 @@ export const activate = e => state => ({
       // if puzzle isn't done or not all pieces are active (puzzle dragged)
       runIf(sort(activeLast))(
         ps =>
-          !state.puzzle.done &&
-          ps.filter(p => p.active).length !== state.puzzle.pieces.length
+          !puzzle.done &&
+          ps.filter(p => p.active).length !== puzzle.pieces.length
       )
-    )(state.puzzle.pieces),
-  },
-})
+    )(puzzle.pieces),
+  })
 
-export const deactivate = state => ({
-  ...state,
-  puzzle: {
-    ...state.puzzle,
-    pieces: state.puzzle.pieces.map(piece => ({
-      ...piece,
-      active: false,
-    })),
-  },
+export const deactivate = tap(puzzle => {
+  puzzle.pieces = puzzle.pieces.map(piece => ({
+    ...piece,
+    active: false,
+  }))
 })

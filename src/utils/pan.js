@@ -164,7 +164,7 @@ export default (
 
 export const getTransformedPosition = (
   { x, y },
-  dpi = window.devicePixelRatio
+  dpi = Math.min(2, window.devicePixelRatio)
 ) => {
   return [(x * dpi - position.x) / scale, (y * dpi - position.y) / scale]
 }

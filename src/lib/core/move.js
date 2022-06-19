@@ -1,23 +1,23 @@
 import { getTransformedPosition } from '../../utils/pan.js'
 
 export const move =
-  ({ offsetX, offsetY }) =>
-  state => {
-    const [x, y] = getTransformedPosition({ x: offsetX, y: offsetY })
+  ({ x, y }) =>
+  puzzle => {
+    const [xpos, ypos] = getTransformedPosition({ x, y })
 
     return {
-      ...state,
-      puzzle: {
-        ...state.puzzle,
-        pieces: state.puzzle.pieces.map(piece => ({
-          ...piece,
-          pos: piece.active
-            ? {
-                x: x - piece.active.x,
-                y: y - piece.active.y,
-              }
-            : piece.pos,
-        })),
-      },
+      ...puzzle,
+      pieces:
+        puzzle.status === 'idle'
+          ? puzzle.pieces
+          : puzzle.pieces.map(piece => ({
+              ...piece,
+              pos: piece.active
+                ? {
+                    x: xpos - piece.active.x,
+                    y: ypos - piece.active.y,
+                  }
+                : piece.pos,
+            })),
     }
   }

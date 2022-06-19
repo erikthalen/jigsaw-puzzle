@@ -1,6 +1,14 @@
-import { allSides, opposite, isVertical } from './../../utils/sides.js'
+import { allSides, isVertical } from './../../utils/sides.js'
 import { bezier, bezierInv } from './../../utils/bezier.js'
 import { random } from './../../utils/utils.js'
+
+export const opposite = side =>
+  ({
+    top: 'bottom',
+    right: 'left',
+    bottom: 'top',
+    left: 'right',
+  }[side])
 
 export const makeShapes = (width, height) => (acc, piece) => {
   const getNeighbor = id => acc.find(piece => piece.id === id)

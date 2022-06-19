@@ -6,8 +6,8 @@ export const bezier = (pieceSize = 100, knobSize = 100 /* knobPos = 20 */) => {
     {
       cx1: 0,
       cy1: 0,
-      cx2: middle - scale * 10,
-      cy2: scale * 5,
+      cx2: middle - scale * 20,
+      cy2: scale * 4,
       ex: middle - scale * 13,
       ey: scale * 0,
     }, // left shoulder
@@ -46,8 +46,8 @@ export const bezier = (pieceSize = 100, knobSize = 100 /* knobPos = 20 */) => {
     {
       cx1: middle - scale * -13,
       cy1: scale * 0,
-      cx2: middle - scale * -10,
-      cy2: scale * 5,
+      cx2: middle - scale * -20,
+      cy2: scale * 4,
       ex: pieceSize,
       ey: scale * 0,
     }, // right shoulder
