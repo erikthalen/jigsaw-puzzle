@@ -1,5 +1,5 @@
-import { isUnderCursor } from '../../utils/is-under-cursor.js'
-import { tap } from '../../utils/utils.js'
+import { isUnderCursor } from '../utils/is-under-cursor.js'
+import { tap } from '../utils/utils.js'
 
 export const setStatus = ({ x, y }) =>
   tap(puzzle => {

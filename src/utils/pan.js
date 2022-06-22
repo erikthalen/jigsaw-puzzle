@@ -31,10 +31,9 @@ const zoom = ({ focal, zoom, max = 10000, min = 0.05 }) => {
   return { position, scale }
 }
 
-export const restore = canvas => {
-  const ctx = canvas.getContext('2d')
-  clear(ctx)
-  ctx.setTransform(1, 0, 0, 1, 0, 0)
+export const restore = () => {
+  position.x = (window.innerWidth / 2) * Math.min(2, window.devicePixelRatio)
+  position.y = (window.innerHeight / 2) * Math.min(2, window.devicePixelRatio)
 }
 
 function isTouchDevice() {
@@ -47,7 +46,11 @@ function isTouchDevice() {
 
 export default (
   canvas,
-  { dpi = window.devicePixelRatio, bounding = null, initScale = 1 } = {}
+  {
+    dpi = Math.min(2, window.devicePixelRatio),
+    bounding = null,
+    initScale = 1,
+  } = {}
 ) => {
   canvas.style.touchAction = 'none'
   canvas.style.userSelect = 'none'
@@ -157,6 +160,10 @@ export default (
         zoom: newScale,
       })
 
+      dispatch({ scale, position })
+    },
+    restore: () => {
+      restore()
       dispatch({ scale, position })
     },
   }

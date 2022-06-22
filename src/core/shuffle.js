@@ -1,5 +1,5 @@
-import { random } from './../../utils/utils.js'
-import { shuffleArray } from './../../utils/array-helpers'
+import { random } from './../utils/utils.js'
+import { shuffleArray } from './../utils/array-helpers'
 
 const randomBetween = (min, max) => {
   return Math.random() * max - min

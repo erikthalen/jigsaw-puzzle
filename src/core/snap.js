@@ -1,7 +1,8 @@
 import { shareConnections } from './share-connections.js'
 import { isClose } from './is-close.js'
-import { same } from './../../utils/object-helpers.js'
-import { tap } from '../../utils/utils.js'
+import { tap } from '../utils/utils.js'
+
+const same = (val, prop) => (obj) => obj[val] === prop;
 
 const moveConnections = (puzzle, [...pieceIds], distance) => {
   pieceIds.forEach(id => {

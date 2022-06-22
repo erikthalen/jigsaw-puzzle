@@ -1,4 +1,4 @@
-import { getTransformedPosition } from '../../utils/pan.js'
+import { getTransformedPosition } from '../utils/pan.js'
 
 export const move =
   ({ x, y }) =>

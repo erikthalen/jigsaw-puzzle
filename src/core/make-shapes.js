@@ -1,6 +1,6 @@
-import { allSides, isVertical } from './../../utils/sides.js'
-import { bezier, bezierInv } from './../../utils/bezier.js'
-import { random } from './../../utils/utils.js'
+import { allSides, isVertical } from '../utils/sides.js'
+import { bezier, bezierInv } from '../utils/bezier.js'
+import { random } from '../utils/utils.js'
 
 export const opposite = side =>
   ({

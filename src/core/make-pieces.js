@@ -1,4 +1,4 @@
-import { getNeighbors } from './../../utils/get-neighbors.js'
+import { getNeighbors } from './../utils/get-neighbors.js'
 import { makeShapes } from './make-shapes.js'
 
 export const makePieces = (image, amount) => {

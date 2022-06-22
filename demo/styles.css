@@ -29,14 +29,3 @@ body {
 input[type='number'] {
   width: 2.9rem;
 }
-
-.test-canvas {
-  position: fixed;
-  left: 20px;
-  top: 20px;
-
-  width: calc(var(--canvas-width) / 4);
-  height: calc(var(--canvas-height) / 4);
-
-  border: 1px solid;
-}

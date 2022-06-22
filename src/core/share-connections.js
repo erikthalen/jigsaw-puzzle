@@ -1,4 +1,4 @@
-import { filterUnique } from './../../utils/array-helpers.js'
+import { filterUnique } from '../utils/array-helpers.js'
 
 // should return, not modify
 export const shareConnections = (puzzle, piece, newPiece) => {

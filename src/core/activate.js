@@ -1,9 +1,10 @@
-import { activeLast, mapReverse, sort } from '../../utils/array-helpers.js'
-import { isTruthy } from '../../utils/object-helpers.js'
-import { pipe, runIf } from '../../utils/utils.js'
-import { isUnderCursor } from '../../utils/is-under-cursor.js'
-import { getTransformedPosition } from '../../utils/pan.js'
-import { tap } from '../../utils/utils.js'
+import { activeLast, mapReverse, sort } from '../utils/array-helpers.js'
+import { pipe, runIf } from '../utils/utils.js'
+import { isUnderCursor } from '../utils/is-under-cursor.js'
+import { getTransformedPosition } from '../utils/pan.js'
+import { tap } from '../utils/utils.js'
+
+const isTruthy = (prop) => (obj) => obj[prop];
 
 const getPiecePos = (piece, { x, y }) => {
   const [xpos, ypos] = getTransformedPosition({ x, y })

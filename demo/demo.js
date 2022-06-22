@@ -87,3 +87,5 @@ Y.addEventListener('change', async e => {
   options.pieces.y = parseInt(e.target.value, 0)
   refresh()
 })
+
+// window.addEventListener('click', p.restorePan)

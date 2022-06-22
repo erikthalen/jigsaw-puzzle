@@ -1,45 +1,15 @@
 import { pipe, tap } from './utils/utils.js'
-import { event } from './utils/event-listeners.js'
-
-import { makePieces } from './lib/core/make-pieces.js'
-import { shuffle } from './lib/core/shuffle.js'
-import { activate, deactivate } from './lib/core/activate.js'
-import { move } from './lib/core/move.js'
-import { snap } from './lib/core/snap.js'
-import { status } from './lib/core/status.js'
+import { makePieces } from './core/make-pieces.js'
+import { shuffle } from './core/shuffle.js'
+import { activate, deactivate } from './core/activate.js'
+import { move } from './core/move.js'
+import { snap } from './core/snap.js'
+import { status } from './core/status.js'
 import { clone } from './utils/clone.js'
-import { setStatus } from './lib/core/set-status.js'
+import { setStatus } from './core/set-status.js'
 import './utils/safariDrawImageFix.js'
 import pan from './utils/pan.js'
-import {
-  clearCanvas,
-  makeCanvas,
-  loadImage,
-  paint,
-  resize,
-  setCursor,
-  paintPiece,
-} from './lib/canvas.js'
-
-// const testCanvas = document.querySelector('.test-canvas')
-// const testCtx = testCanvas.getContext('2d')
-
-// const createPrintLayers = puzzle =>
-//   tap(ui => {
-//     const { active, nonActive } = puzzle.pieces.reduce(
-//       (acc, piece) => {
-//         acc[piece.active ? 'active' : 'nonActive'].push(piece)
-
-//         return acc
-//       },
-//       { active: [], nonActive: [] }
-//     )
-
-//     active.forEach(paintPiece(puzzle, { ...ui, ...ui.layers.active }))
-//     nonActive.forEach(paintPiece(puzzle, { ...ui, ...ui.layers.nonActive }))
-
-//     console.log('active')
-//   })
+import { makeCanvas, loadImage, paint, resize, setCursor } from './canvas.js'
 
 export const puzzle = async ({
   element,
@@ -68,6 +38,7 @@ export const puzzle = async ({
     canvas,
     ctx,
     image,
+    useCache: false,
     // layers: {
     //   active: makeCanvas(),
     //   nonActive: makeCanvas(),
@@ -92,7 +63,7 @@ export const puzzle = async ({
   state.puzzle = pipe(shuffle(aligned))(initPuzzle)
   state.ui = paint(state.puzzle)(initUI)
 
-  const { zoom } = pan(canvas, {
+  const { zoom, restore } = pan(canvas, {
     initScale:
       initZoom ||
       Math.min(
@@ -104,11 +75,9 @@ export const puzzle = async ({
   // createPrintLayers(state.puzzle)(state.ui)
 
   const updateUI = () => {
-    state.ui = pipe(
-      clearCanvas,
-      paint(state.puzzle),
-      setCursor(state.puzzle)
-    )(state.ui)
+    state.ui = pipe(paint(state.puzzle), setCursor(state.puzzle))(state.ui)
+
+    // state.ui.useCache = puzzle.status !== 'active'
   }
 
   canvas.addEventListener('pan', e => {
@@ -126,57 +95,42 @@ export const puzzle = async ({
     updateUI()
   })
 
-  // user interactions -----------------------------------------
-  const eventListeners = [
-    event(window).resize(() => {
-      resize(state.ui.canvas)
-      ctx.setTransform(
-        state.ui.zoom,
-        0,
-        0,
-        state.ui.zoom,
-        state.ui.position.x,
-        state.ui.position.y
-      )
+  const handlePointerdown = ({ offsetX: x, offsetY: y }) => {
+    state.puzzle = pipe(activate({ x, y }), setStatus({ x, y }))(state.puzzle)
+    updateUI()
+  }
 
-      updateUI()
-    }),
+  const handleResize = () => {
+    const { zoom, position } = state.ui
+    resize(state.ui.canvas)
+    ctx.setTransform(zoom, 0, 0, zoom, position.x, position.y)
+    updateUI()
+  }
 
-    event(state.ui.canvas).pointerdown(e => {
-      state.puzzle = pipe(
-        activate({ x: e.offsetX, y: e.offsetY }),
-        setStatus({ x: e.offsetX, y: e.offsetY })
-      )(state.puzzle)
+  const handlePointermove = ({ offsetX: x, offsetY: y }) => {
+    state.puzzle = pipe(move({ x, y }), setStatus({ x, y }))(state.puzzle)
+    updateUI()
+  }
 
-      // state.ui = pipe(createPrintLayers(state.puzzle))(state.ui)
+  const handlePointerup = ({ offsetX: x, offsetY: y }) => {
+    state.puzzle = pipe(
+      snap,
+      deactivate,
+      status,
+      setStatus({ x, y })
+    )(state.puzzle)
 
-      updateUI()
-    }),
+    updateUI()
 
-    event(state.ui.canvas).pointermove(e => {
-      state.puzzle = pipe(
-        move({ x: e.offsetX, y: e.offsetY }),
-        setStatus({ x: e.offsetX, y: e.offsetY })
-      )(state.puzzle)
+    onChange({ ui: state.ui, puzzle: clone(state.puzzle) })
 
-      updateUI()
-    }),
+    if (state.puzzle.done) onComplete(state)
+  }
 
-    event(document.body).pointerup(e => {
-      state.puzzle = pipe(
-        snap,
-        deactivate,
-        status,
-        setStatus({ x: e.offsetX, y: e.offsetY })
-      )(state.puzzle)
-
-      updateUI()
-
-      onChange({ ui: state.ui, puzzle: clone(state.puzzle) })
-
-      if (state.puzzle.done) onComplete(state)
-    }),
-  ]
+  state.ui.canvas.addEventListener('pointerdown', handlePointerdown)
+  state.ui.canvas.addEventListener('pointermove', handlePointermove)
+  state.ui.canvas.addEventListener('pointerup', handlePointerup)
+  window.addEventListener('resize', handleResize)
 
   return {
     newGame: () => {
@@ -194,9 +148,9 @@ export const puzzle = async ({
       }
 
       state = null
-      eventListeners.map(listener => listener.remove())
     },
     setZoom: zoom,
     getZoom: () => state.ui.zoom,
+    restorePan: restore,
   }
 }

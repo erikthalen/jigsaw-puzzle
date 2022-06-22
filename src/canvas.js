@@ -1,9 +1,10 @@
-import { tap } from '../utils/utils.js'
-import { allSides } from '../utils/sides.js'
+import { tap } from './utils/utils.js'
+import { allSides } from './utils/sides.js'
 
 export const loadImage = src =>
   new Promise(resolve => {
     var image = new Image()
+    // image.crossOrigin = 'anonymous'
     image.onload = () =>
       resolve({ image, width: image.width, height: image.height })
 
@@ -49,11 +50,23 @@ export const clearCanvas = tap(ui => {
   ctx.restore()
 })
 
+// const offscreen = document.createElement('canvas')
+// const offctx = offscreen.getContext('2d')
+
 export const paint = puzzle =>
   tap(ui => {
-    // ui.ctx.drawImage(ui.layers.active.canvas, 0, 0)
-    // ui.ctx.drawImage(ui.layers.nonActive.canvas, 0, 0)
+    // if (ui.useCache) {
+    //   const image = ui.ctx.getImageData(0, 0, ui.canvas.width, ui.canvas.height)
+
+    //   clearCanvas(ui)
+
+    //   ui.ctx.drawImage(image, 0, 0)
+
+    //   // puzzle.pieces.map(paintPiece(puzzle, ui))
+    // } else {
+    clearCanvas(ui)
     puzzle.pieces.map(paintPiece(puzzle, ui))
+    // }
   })
 
 export const setCursor = puzzle =>

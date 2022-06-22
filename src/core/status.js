@@ -1,4 +1,4 @@
-import { tap } from '../../utils/utils'
+import { tap } from '../utils/utils'
 
 export const status = tap(puzzle => {
   if (puzzle.status === 'active') {
