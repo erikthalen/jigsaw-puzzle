@@ -10,8 +10,10 @@ const p = await puzzle({
   attraction: 5,   // distance to snap pieces
   aligned: true,   // don't overlap pieces on start
   zoom: 0.5,       // initial zoom of context
-  onComplete: state => {},
-  onChange: state => {}
+  beforeInit: canvas => {},
+  onInit: state => {},
+  onChange: state => {},
+  onComplete: state => {}
 })
 
 
