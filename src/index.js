@@ -18,6 +18,8 @@ export const puzzle = async ({
   attraction = 5,
   aligned = false,
   zoom: initZoom,
+  beforeInit = () => {},
+  onInit = () => {},
   onComplete = () => {},
   onChange = () => {},
 }) => {
@@ -30,6 +32,9 @@ export const puzzle = async ({
   }
 
   const { canvas, ctx } = makeCanvas(container)
+
+  beforeInit(canvas)
+
   const { image, width, height } = await loadImage(img)
 
   const initUI = {
@@ -71,12 +76,10 @@ export const puzzle = async ({
         window.innerHeight / state.puzzle.height
       ),
   })
-
   // createPrintLayers(state.puzzle)(state.ui)
 
   const updateUI = () => {
     state.ui = pipe(paint(state.puzzle), setCursor(state.puzzle))(state.ui)
-
     // state.ui.useCache = puzzle.status !== 'active'
   }
 
@@ -90,9 +93,11 @@ export const puzzle = async ({
     state.ui.position = position
 
     state.ui.ctx.setTransform(scale, 0, 0, scale, position.x, position.y)
-    // state.ui.layers.active.ctx.setTransform(scale, 0, 0, scale, position.x, position.y)
-    // state.ui.layers.nonActive.ctx.setTransform(scale, 0, 0, scale, position.x, position.y)
     updateUI()
+  })
+
+  setTimeout(() => {
+    onInit(state)
   })
 
   const handlePointerdown = ({ offsetX: x, offsetY: y }) => {

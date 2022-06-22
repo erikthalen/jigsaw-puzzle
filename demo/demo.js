@@ -11,32 +11,32 @@ const X = $('#x')
 const Y = $('#y')
 
 const images = [
-  'https://artsourceinternational.com/wp-content/uploads/2018/04/WOR0006.jpg',
-  'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fmedicinetoday.com.au%2Fsites%2Fdefault%2Ffiles%2FDermQuiz-Figure.jpg&f=1&nofb=1',
+  // 'https://artsourceinternational.com/wp-content/uploads/2018/04/WOR0006.jpg',
+  // 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fmedicinetoday.com.au%2Fsites%2Fdefault%2Ffiles%2FDermQuiz-Figure.jpg&f=1&nofb=1',
+  'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fallhdwallpapers.com%2Fwp-content%2Fuploads%2F2015%2F07%2FDesert-6.jpg&f=1&nofb=1',
 ]
-
-const onComplete = state => {
-  // const done = $('#done')
-  // done.innerHTML = `Done! In ${(
-  //   (Date.now() - state.puzzle.timeStamp) /
-  //   1000
-  // ).toFixed(1)}s`
-  // done.style.display = 'block'
-}
-
-const onChange = state => {
-  console.log(state)
-}
 
 const options = {
   element: '#app',
   image: images[Math.floor((Date.now() / 1000) % images.length)],
-  pieces: { x: 3, y: 2 },
+  pieces: { x: 23, y: 15 },
   attraction: 3,
   aligned: true,
-  // zoom: 1,
-  onComplete,
-  onChange,
+  beforeInit: canvas => {
+    console.log('before init:', canvas)
+    canvas.style.opacity = 0
+  },
+  onInit: state => {
+    console.log('on init:', state)
+    state.ui.canvas.style.transition = 'opacity 0.2s ease'
+    state.ui.canvas.style.opacity = 1
+  },
+  onChange: state => {
+    console.log('on change:', state)
+  },
+  onComplete: state => {
+    console.log('on complete:', state)
+  },
 }
 
 let saveFile = {}
