@@ -14,8 +14,8 @@ export const setStatus = ({ x, y }) =>
       isUnderCursor(piece, {
         x,
         y,
-        width: puzzle.width / puzzle.size.x,
-        height: puzzle.height / puzzle.size.y,
+        width: 1 / puzzle.size.x,
+        height: 1 / puzzle.size.y,
       })
     )
 

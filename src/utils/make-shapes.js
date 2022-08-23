@@ -1,19 +1,17 @@
-import { allSides, isVertical } from '../utils/sides.js'
-import { bezier, bezierInv } from '../utils/bezier.js'
-import { random } from '../utils/utils.js'
-
-export const opposite = side =>
-  ({
-    top: 'bottom',
-    right: 'left',
-    bottom: 'top',
-    left: 'right',
-  }[side])
+import { allSides, isVertical } from './sides.js'
+import { bezier, bezierInv } from './bezier.js'
+import { random } from './utils.js'
 
 export const makeShapes = (width, height) => (acc, piece) => {
-  const getNeighbor = id => acc.find(piece => piece.id === id)
   const neighborShape = (id, side) =>
-    getNeighbor(id)?.shapes && getNeighbor(id).shapes[opposite(side)]
+    acc.find(piece => piece.id === id)?.shapes[
+      {
+        top: 'bottom',
+        right: 'left',
+        bottom: 'top',
+        left: 'right',
+      }[side]
+    ]
 
   // 'flat' if no neighbor
   const flatSides = ({ neighbors }) =>
@@ -42,5 +40,5 @@ export const makeShapes = (width, height) => (acc, piece) => {
     ...flatSides(piece),
   }
 
-  return [{ ...piece, shapes }, ...acc]
+  return [{ id: piece.id, shapes }, ...acc]
 }

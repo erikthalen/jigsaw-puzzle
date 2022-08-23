@@ -1,5 +1,13 @@
 import { tap } from './utils/utils.js'
 import { allSides } from './utils/sides.js'
+import { makeShapes } from './utils/make-shapes.js'
+
+export const cutPieces = (image, puzzle) => {
+  const width = image.width / puzzle.size.x
+  const height = image.height / puzzle.size.y
+
+  return puzzle.pieces.reduce(makeShapes(width, height), [])
+}
 
 export const loadImage = src =>
   new Promise(resolve => {
@@ -80,19 +88,27 @@ export const setCursor = puzzle =>
   })
 
 export const paintPiece = (puzzle, ui) => piece => {
+  const pos = {
+    x: piece.pos.x * ui.width,
+    y: piece.pos.y * ui.height,
+  }
+
+  const size = {
+    x: 1 / puzzle.size.x * ui.width,
+    y: 1 / puzzle.size.y * ui.height,
+  }
+
   const { ctx, image } = ui
-  const pieceWidth = puzzle.width / puzzle.size.x
-  const pieceHeight = puzzle.height / puzzle.size.y
-  const shapeOffset = Math.max(pieceWidth, pieceHeight)
+  const shapeOffset = Math.max(size.x, size.y)
 
   ctx.save()
   ctx.beginPath()
-  ctx.translate(piece.pos.x, piece.pos.y + pieceHeight)
+  ctx.translate(pos.x, pos.y + size.y)
 
   allSides.forEach(side => {
-    drawSide(ctx, piece.shapes[side], {
-      x: side === 'top' || side === 'bottom' ? -pieceHeight : -pieceWidth,
-      y: side === 'top' || side === 'bottom' ? pieceWidth : pieceHeight,
+    drawSide(ctx, ui.pieces.find(({ id }) => id === piece.id).shapes[side], {
+      x: side === 'top' || side === 'bottom' ? -size.y : -size.x,
+      y: side === 'top' || side === 'bottom' ? size.x : size.y,
     })
   })
 
@@ -101,20 +117,20 @@ export const paintPiece = (puzzle, ui) => piece => {
 
   ctx.drawImage(
     image, // image
-    piece.origin.x * pieceWidth - shapeOffset, // what part of image
-    piece.origin.y * pieceHeight - shapeOffset, // what part of image
-    pieceWidth + shapeOffset * 2, // how much of image
-    pieceHeight + shapeOffset * 2, // how much of image
-    piece.pos.x / puzzle.width - shapeOffset, // where on canvas
-    piece.pos.y / puzzle.height - shapeOffset - pieceHeight, // where on canvas
-    pieceWidth + shapeOffset * 2, // how big on canvas
-    pieceHeight + shapeOffset * 2 // how big on canvas
+    piece.origin.x * size.x - shapeOffset, // what part of image
+    piece.origin.y * size.y - shapeOffset, // what part of image
+    size.x + shapeOffset * 2, // how much of image
+    size.y + shapeOffset * 2, // how much of image
+    piece.pos.x / ui.width - shapeOffset, // where on canvas
+    piece.pos.y / ui.height - shapeOffset - size.y, // where on canvas
+    size.x + shapeOffset * 2, // how big on canvas
+    size.y + shapeOffset * 2 // how big on canvas
   )
 
   ctx.restore()
 
   const highlight = !puzzle.done && (piece.active || piece.alsoActive)
-  const strokeWidth = (1 / 2500) * puzzle.width
+  const strokeWidth = (1 / 2500) * ui.width
 
   ctx.shadowColor = highlight ? 'rgba(100, 100, 100, 1)' : 'rgba(50, 50, 50, 1)'
   ctx.strokeStyle = highlight

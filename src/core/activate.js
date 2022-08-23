@@ -1,17 +1,14 @@
 import { activeLast, mapReverse, sort } from '../utils/array-helpers.js'
 import { pipe, runIf } from '../utils/utils.js'
 import { isUnderCursor } from '../utils/is-under-cursor.js'
-import { getTransformedPosition } from '../utils/pan.js'
 import { tap } from '../utils/utils.js'
 
-const isTruthy = (prop) => (obj) => obj[prop];
+const isTruthy = prop => obj => obj[prop]
 
 const getPiecePos = (piece, { x, y }) => {
-  const [xpos, ypos] = getTransformedPosition({ x, y })
-
   return {
-    x: xpos - piece.pos.x,
-    y: ypos - piece.pos.y,
+    x: x - piece.pos.x,
+    y: y - piece.pos.y,
   }
 }
 
@@ -29,8 +26,8 @@ export const activate =
           isUnderCursor(piece, {
             x,
             y,
-            width: puzzle.width / puzzle.size.x,
-            height: puzzle.height / puzzle.size.y,
+            width: 1 / puzzle.size.x,
+            height: 1 / puzzle.size.y,
           })
             ? getPiecePos(piece, { x, y })
             : false,

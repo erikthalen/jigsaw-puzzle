@@ -4,15 +4,15 @@ const nw = side => side === 'top' || side === 'left'
 
 // is piece1 close to piece2
 export const isClose = (p1, p2, puzzle, side) => {
-  const { attraction, width, height, size } = puzzle
-  const snapArea = (Math.max(puzzle.width, puzzle.height) * attraction) / 100
+  const { attraction, size } = puzzle
+  const snapArea = attraction / 100
 
   const XY = isVertical(side) ? 'y' : 'x'
   const invXY = XY === 'x' ? 'y' : 'x'
 
   const positive = nw(side) ? false : true
 
-  const siz = XY === 'y' ? height / size.y : width / size.x
+  const siz = XY === 'y' ? 1 / size.y : 1 / size.x
   const offset = positive ? p2.pos[XY] + siz : p2.pos[XY] - siz
 
   return (

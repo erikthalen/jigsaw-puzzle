@@ -19,11 +19,11 @@ const images = [
 const options = {
   element: '#app',
   image: images[Math.floor((Date.now() / 1000) % images.length)],
-  pieces: { x: 23, y: 15 },
+  pieces: { x: 30, y: 20 },
   attraction: 3,
   aligned: true,
   beforeInit: canvas => {
-    console.log('before init:', canvas)
+    // console.log('before init:', canvas)
     canvas.style.opacity = 0
   },
   onInit: state => {

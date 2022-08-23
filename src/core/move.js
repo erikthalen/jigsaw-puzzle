@@ -3,7 +3,7 @@ import { getTransformedPosition } from '../utils/pan.js'
 export const move =
   ({ x, y }) =>
   puzzle => {
-    const [xpos, ypos] = getTransformedPosition({ x, y })
+    // const [xpos, ypos] = getTransformedPosition({ x, y })
 
     return {
       ...puzzle,
@@ -14,8 +14,8 @@ export const move =
               ...piece,
               pos: piece.active
                 ? {
-                    x: xpos - piece.active.x,
-                    y: ypos - piece.active.y,
+                    x: x - piece.active.x,
+                    y: y - piece.active.y,
                   }
                 : piece.pos,
             })),

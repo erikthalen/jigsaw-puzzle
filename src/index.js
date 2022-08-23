@@ -8,8 +8,15 @@ import { status } from './core/status.js'
 import { clone } from './utils/clone.js'
 import { setStatus } from './core/set-status.js'
 import './utils/safariDrawImageFix.js'
-import pan from './utils/pan.js'
-import { makeCanvas, loadImage, paint, resize, setCursor } from './canvas.js'
+import pan, { getTransformedPosition } from './utils/pan.js'
+import {
+  makeCanvas,
+  loadImage,
+  paint,
+  resize,
+  setCursor,
+  cutPieces,
+} from './canvas.js'
 
 export const puzzle = async ({
   element,
@@ -37,30 +44,31 @@ export const puzzle = async ({
 
   const { image, width, height } = await loadImage(img)
 
+  const initPuzzle = {
+    moves: 0,
+    status: 'idle',
+    done: false,
+    startTime: Date.now(),
+    attraction,
+    size: { x: pieces.x, y: pieces.y },
+    pieces: makePieces(pieces),
+  }
+
   const initUI = {
+    url: img,
     zoom: 1,
     position: { x: 0, y: 0 },
     canvas,
     ctx,
     image,
     useCache: false,
+    height,
+    width,
+    pieces: cutPieces(image, initPuzzle),
     // layers: {
     //   active: makeCanvas(),
     //   nonActive: makeCanvas(),
     // },
-  }
-
-  const initPuzzle = {
-    url: img,
-    moves: 0,
-    status: 'idle',
-    done: false,
-    startTime: Date.now(),
-    attraction,
-    width,
-    height,
-    size: { x: pieces.x, y: pieces.y },
-    pieces: makePieces(image, pieces),
   }
 
   let state = {}
@@ -72,8 +80,8 @@ export const puzzle = async ({
     initScale:
       initZoom ||
       Math.min(
-        window.innerWidth / state.puzzle.width,
-        window.innerHeight / state.puzzle.height
+        window.innerWidth / state.ui.width,
+        window.innerHeight / state.ui.height
       ),
   })
   // createPrintLayers(state.puzzle)(state.ui)
@@ -100,29 +108,35 @@ export const puzzle = async ({
     onInit(state)
   })
 
-  const handlePointerdown = ({ offsetX: x, offsetY: y }) => {
-    state.puzzle = pipe(activate({ x, y }), setStatus({ x, y }))(state.puzzle)
-    updateUI()
+  const getCursor = ({ x, y }) => {
+    const [xpos, ypos] = getTransformedPosition({ x, y })
+    return { x: xpos / state.ui.width, y: ypos / state.ui.height }
   }
 
-  const handleResize = () => {
-    const { zoom, position } = state.ui
-    resize(state.ui.canvas)
-    ctx.setTransform(zoom, 0, 0, zoom, position.x, position.y)
+  const handlePointerdown = ({ offsetX: x, offsetY: y }) => {
+    const cursor = getCursor({ x, y })
+
+    state.puzzle = pipe(activate(cursor), setStatus(cursor))(state.puzzle)
+
     updateUI()
   }
 
   const handlePointermove = ({ offsetX: x, offsetY: y }) => {
-    state.puzzle = pipe(move({ x, y }), setStatus({ x, y }))(state.puzzle)
+    const cursor = getCursor({ x, y })
+
+    state.puzzle = pipe(move(cursor), setStatus(cursor))(state.puzzle)
+
     updateUI()
   }
 
   const handlePointerup = ({ offsetX: x, offsetY: y }) => {
+    const cursor = getCursor({ x, y })
+
     state.puzzle = pipe(
       snap,
       deactivate,
       status,
-      setStatus({ x, y })
+      setStatus(cursor)
     )(state.puzzle)
 
     updateUI()
@@ -130,6 +144,13 @@ export const puzzle = async ({
     onChange({ ui: state.ui, puzzle: clone(state.puzzle) })
 
     if (state.puzzle.done) onComplete(state)
+  }
+
+  const handleResize = () => {
+    const { zoom, position } = state.ui
+    resize(state.ui.canvas)
+    ctx.setTransform(zoom, 0, 0, zoom, position.x, position.y)
+    updateUI()
   }
 
   state.ui.canvas.addEventListener('pointerdown', handlePointerdown)

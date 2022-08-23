@@ -15,27 +15,21 @@ export const shuffle =
           connections: [],
           pos: {
             x:
-              (((i % puzzle.size.x) * puzzle.width) / puzzle.size.x) * 2 +
-              randomBetween(
-                -puzzle.width / puzzle.size.x,
-                puzzle.width / puzzle.size.x
-              ) - puzzle.width / 1.5,
+              ((i % puzzle.size.x) / puzzle.size.x) * 2 +
+              randomBetween(-1 / puzzle.size.x, 1 / puzzle.size.x) -
+              0.52,
             y:
-              ((Math.floor(i / puzzle.size.x) * puzzle.height) /
-                puzzle.size.y) *
-                2 +
-              randomBetween(
-                -puzzle.height / puzzle.size.y,
-                puzzle.height / puzzle.size.y
-              ) - puzzle.height / 1.5,
+              (Math.floor(i / puzzle.size.x) / puzzle.size.y) * 2 +
+              randomBetween(-1 / puzzle.size.y, 1 / puzzle.size.y) -
+              0.52,
           },
         }))
-      : puzzle.pieces.map((piece, i) => ({
+      : puzzle.pieces.map(piece => ({
           ...piece,
           connections: [],
           pos: {
-            x: (random() * 2 - 0.5) * puzzle.width,
-            y: (random() * 2 - 0.5) * puzzle.height,
+            x: random() * 2 - 0.5,
+            y: random() * 2 - 0.5,
           },
         })),
   })

@@ -2,7 +2,7 @@ import { shareConnections } from './share-connections.js'
 import { isClose } from './is-close.js'
 import { tap } from '../utils/utils.js'
 
-const same = (val, prop) => (obj) => obj[val] === prop;
+const same = (val, prop) => obj => obj[val] === prop
 
 const moveConnections = (puzzle, [...pieceIds], distance) => {
   pieceIds.forEach(id => {
@@ -31,17 +31,13 @@ export const snap = tap(puzzle => {
           x:
             neighbor.pos.x +
             (side === 'right'
-              ? -width / size.x
+              ? -1 / size.x
               : side === 'left'
-              ? +width / size.x
+              ? +1 / size.x
               : 0),
           y:
             neighbor.pos.y +
-            (side === 'top'
-              ? height / size.y
-              : side === 'bottom'
-              ? -height / size.y
-              : 0),
+            (side === 'top' ? 1 / size.y : side === 'bottom' ? -1 / size.y : 0),
         }
 
         // order is important
