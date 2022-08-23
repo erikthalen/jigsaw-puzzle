@@ -19,7 +19,7 @@ const images = [
 const options = {
   element: '#app',
   image: images[Math.floor((Date.now() / 1000) % images.length)],
-  pieces: { x: 30, y: 20 },
+  pieces: { x: 6, y: 5 },
   attraction: 3,
   aligned: true,
   beforeInit: canvas => {
