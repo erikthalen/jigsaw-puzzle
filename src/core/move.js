@@ -1,10 +1,6 @@
-import { getTransformedPosition } from '../utils/pan.js'
-
 export const move =
   ({ x, y }) =>
   puzzle => {
-    // const [xpos, ypos] = getTransformedPosition({ x, y })
-
     return {
       ...puzzle,
       pieces:

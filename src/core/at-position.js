@@ -1,4 +1,4 @@
-export const isUnderCursor = (piece, { x, y, width, height }) => {
+export const asPosition = (piece, { x, y, width, height }) => {
   return (
     x >= piece.pos.x &&
     x <= piece.pos.x + width &&

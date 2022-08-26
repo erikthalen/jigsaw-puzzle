@@ -1,6 +1,6 @@
 import { activeLast, mapReverse, sort } from '../utils/array-helpers.js'
 import { pipe, runIf } from '../utils/utils.js'
-import { isUnderCursor } from '../utils/is-under-cursor.js'
+import { asPosition } from './at-position.js'
 import { tap } from '../utils/utils.js'
 
 const isTruthy = prop => obj => obj[prop]
@@ -23,7 +23,7 @@ export const activate =
         ...piece,
         active:
           !acc.find(isTruthy('active')) &&
-          isUnderCursor(piece, {
+          asPosition(piece, {
             x,
             y,
             width: 1 / puzzle.size.x,

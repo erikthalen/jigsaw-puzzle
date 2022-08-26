@@ -1,13 +1,6 @@
 import { tap } from './utils/utils.js'
-import { allSides } from './utils/sides.js'
-import { makeShapes } from './utils/make-shapes.js'
-
-export const cutPieces = (image, puzzle) => {
-  const width = image.width / puzzle.size.x
-  const height = image.height / puzzle.size.y
-
-  return puzzle.pieces.reduce(makeShapes(width, height), [])
-}
+import { isVertical } from './utils/sides.js'
+import { bezier, bezierInv } from './utils/bezier.js'
 
 export const loadImage = src =>
   new Promise(resolve => {
@@ -58,23 +51,10 @@ export const clearCanvas = tap(ui => {
   ctx.restore()
 })
 
-// const offscreen = document.createElement('canvas')
-// const offctx = offscreen.getContext('2d')
-
 export const paint = puzzle =>
   tap(ui => {
-    // if (ui.useCache) {
-    //   const image = ui.ctx.getImageData(0, 0, ui.canvas.width, ui.canvas.height)
-
-    //   clearCanvas(ui)
-
-    //   ui.ctx.drawImage(image, 0, 0)
-
-    //   // puzzle.pieces.map(paintPiece(puzzle, ui))
-    // } else {
     clearCanvas(ui)
     puzzle.pieces.map(paintPiece(puzzle, ui))
-    // }
   })
 
 export const setCursor = puzzle =>
@@ -87,6 +67,9 @@ export const setCursor = puzzle =>
         : 'default'
   })
 
+const order = ['top', 'right', 'bottom', 'left']
+const clockwise = (a, b) => (order.indexOf(a[0]) > order.indexOf(b[0]) ? 1 : -1)
+
 export const paintPiece = (puzzle, ui) => piece => {
   const pos = {
     x: piece.pos.x * ui.width,
@@ -94,8 +77,8 @@ export const paintPiece = (puzzle, ui) => piece => {
   }
 
   const size = {
-    x: 1 / puzzle.size.x * ui.width,
-    y: 1 / puzzle.size.y * ui.height,
+    x: (1 / puzzle.size.x) * ui.width,
+    y: (1 / puzzle.size.y) * ui.height,
   }
 
   const { ctx, image } = ui
@@ -105,11 +88,14 @@ export const paintPiece = (puzzle, ui) => piece => {
   ctx.beginPath()
   ctx.translate(pos.x, pos.y + size.y)
 
-  allSides.forEach(side => {
-    drawSide(ctx, ui.pieces.find(({ id }) => id === piece.id).shapes[side], {
-      x: side === 'top' || side === 'bottom' ? -size.y : -size.x,
-      y: side === 'top' || side === 'bottom' ? size.x : size.y,
-    })
+  //
+  ;[...Object.entries(piece.sides)].sort(clockwise).forEach((s, idx) => {
+    const pos = {
+      x: isVertical(s[0]) ? -size.y : -size.x,
+      y: isVertical(s[0]) ? size.x : size.y,
+    }
+
+    drawSide(ctx, s, pos, size)
   })
 
   ctx.closePath()
@@ -130,7 +116,9 @@ export const paintPiece = (puzzle, ui) => piece => {
   ctx.restore()
 
   const highlight = !puzzle.done && (piece.active || piece.alsoActive)
-  const strokeWidth = (1 / 2500) * ui.width
+  const strokeWidth = 1 / Math.max(ui.zoom, 1)
+
+  console.log(strokeWidth)
 
   ctx.shadowColor = highlight ? 'rgba(100, 100, 100, 1)' : 'rgba(50, 50, 50, 1)'
   ctx.strokeStyle = highlight
@@ -146,13 +134,19 @@ export const paintPiece = (puzzle, ui) => piece => {
   ctx.stroke()
 }
 
-function drawSide(ctx, side, size) {
-  ctx.translate(0, size.x)
+function drawSide(ctx, [side, shape], pos, puzzle) {
+  ctx.translate(0, pos.x)
 
-  if (side === 'flat') {
-    ctx.lineTo(size.y, 0)
+  const size = isVertical(side) ? puzzle.x : puzzle.y
+
+  if (shape === 'flat') {
+    ctx.lineTo(pos.y, 0)
   } else {
-    side.forEach(b => {
+    const res =
+      shape === 'in'
+        ? bezierInv(bezier(size, Math.min(puzzle.x, puzzle.y)))
+        : bezier(size, Math.min(puzzle.x, puzzle.y))
+    res.forEach(b => {
       ctx.bezierCurveTo(b.cx1, b.cy1, b.cx2, b.cy2, b.ex, b.ey)
     })
   }

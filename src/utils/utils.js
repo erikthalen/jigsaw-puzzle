@@ -19,3 +19,5 @@ export const pipe =
     [...fns].reduce((acc, f) => f(acc), x)
 
 export const clamp = (min, val, max) => Math.max(Math.min(val, max), min)
+
+export const clone = obj => JSON.parse(JSON.stringify(obj))

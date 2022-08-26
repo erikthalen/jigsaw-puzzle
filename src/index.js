@@ -5,18 +5,11 @@ import { activate, deactivate } from './core/activate.js'
 import { move } from './core/move.js'
 import { snap } from './core/snap.js'
 import { status } from './core/status.js'
-import { clone } from './utils/clone.js'
+import { clone } from './utils/utils.js'
 import { setStatus } from './core/set-status.js'
 import './utils/safariDrawImageFix.js'
 import pan, { getTransformedPosition } from './utils/pan.js'
-import {
-  makeCanvas,
-  loadImage,
-  paint,
-  resize,
-  setCursor,
-  cutPieces,
-} from './canvas.js'
+import { makeCanvas, loadImage, paint, resize, setCursor } from './canvas.js'
 
 export const puzzle = async ({
   element,
@@ -64,11 +57,6 @@ export const puzzle = async ({
     useCache: false,
     height,
     width,
-    pieces: cutPieces(image, initPuzzle),
-    // layers: {
-    //   active: makeCanvas(),
-    //   nonActive: makeCanvas(),
-    // },
   }
 
   let state = {}
@@ -80,8 +68,8 @@ export const puzzle = async ({
     initScale:
       initZoom ||
       Math.min(
-        window.innerWidth / state.ui.width,
-        window.innerHeight / state.ui.height
+        (window.innerWidth / state.ui.width) * 0.9,
+        (window.innerHeight / state.ui.height) * 0.9
       ),
   })
   // createPrintLayers(state.puzzle)(state.ui)

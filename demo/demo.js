@@ -11,15 +11,16 @@ const X = $('#x')
 const Y = $('#y')
 
 const images = [
+  'https://images.unsplash.com/photo-1529982567978-dbaa7babe4df?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80',
   // 'https://artsourceinternational.com/wp-content/uploads/2018/04/WOR0006.jpg',
   // 'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fmedicinetoday.com.au%2Fsites%2Fdefault%2Ffiles%2FDermQuiz-Figure.jpg&f=1&nofb=1',
-  'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fallhdwallpapers.com%2Fwp-content%2Fuploads%2F2015%2F07%2FDesert-6.jpg&f=1&nofb=1',
+  // 'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fallhdwallpapers.com%2Fwp-content%2Fuploads%2F2015%2F07%2FDesert-6.jpg&f=1&nofb=1',
 ]
 
 const options = {
   element: '#app',
   image: images[Math.floor((Date.now() / 1000) % images.length)],
-  pieces: { x: 6, y: 5 },
+  pieces: { x: 15, y: 10 },
   attraction: 3,
   aligned: true,
   beforeInit: canvas => {

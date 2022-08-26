@@ -1,4 +1,5 @@
-import { getNeighbors } from './../utils/get-neighbors.js'
+import { getNeighbors } from './get-neighbors.js'
+import { makeShapes } from './make-shapes.js'
 
 export const makePieces = (amount) => {
   const piecesAmount = [...Array(amount.y * amount.x)]
@@ -15,5 +16,5 @@ export const makePieces = (amount) => {
     connections: [], // every other piece this one is snapped together with
   }))
 
-  return pieces
+  return pieces.reduce(makeShapes, [])
 }

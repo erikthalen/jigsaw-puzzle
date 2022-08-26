@@ -1,4 +1,4 @@
-import { isUnderCursor } from '../utils/is-under-cursor.js'
+import { asPosition } from './at-position.js'
 import { tap } from '../utils/utils.js'
 
 export const setStatus = ({ x, y }) =>
@@ -11,7 +11,7 @@ export const setStatus = ({ x, y }) =>
     }
 
     const hovered = puzzle.pieces.find(piece =>
-      isUnderCursor(piece, {
+      asPosition(piece, {
         x,
         y,
         width: 1 / puzzle.size.x,

@@ -16,7 +16,7 @@ const moveConnections = (puzzle, [...pieceIds], distance) => {
 
 export const snap = tap(puzzle => {
   const activePieces = puzzle.pieces.filter(piece => piece.active)
-  const { width, height, size } = puzzle
+  const { size } = puzzle
 
   if (!activePieces.length || activePieces.length === puzzle.pieces.length) {
     return

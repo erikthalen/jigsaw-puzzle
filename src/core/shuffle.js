@@ -1,18 +1,13 @@
 import { random } from './../utils/utils.js'
 import { shuffleArray } from './../utils/array-helpers'
 
-const randomBetween = (val) => {
-  return Math.random() * (val - (val * -1)) + (val * -1)
+const randomBetween = val => {
+  return Math.random() * (val - val * -1) + val * -1
 }
 
 export const shuffle =
   (aligned = false) =>
   puzzle => {
-    console.log(
-      puzzle.pieces.map((piece, i) => {
-        return ((i % puzzle.size.x) / puzzle.size.x)
-      })
-    )
     return {
       ...puzzle,
       pieces: aligned
@@ -20,8 +15,10 @@ export const shuffle =
             ...piece,
             connections: [],
             pos: {
-              x: ((i % puzzle.size.x) / puzzle.size.x) * 2 - 0.42 + randomBetween(0.07),
-              y: (Math.floor(i / puzzle.size.x) / puzzle.size.y) * 2 - 0.42 + randomBetween(0.07),
+              x: ((i % puzzle.size.x) / puzzle.size.x + randomBetween(0.015)) * 2 - 0.42,
+              y:
+                (Math.floor(i / puzzle.size.x) / puzzle.size.y +
+                randomBetween(0.015)) * 2 - 0.42,
             },
           }))
         : puzzle.pieces.map(piece => ({
