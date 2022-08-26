@@ -118,8 +118,6 @@ export const paintPiece = (puzzle, ui) => piece => {
   const highlight = !puzzle.done && (piece.active || piece.alsoActive)
   const strokeWidth = 1 / Math.max(ui.zoom, 1)
 
-  console.log(strokeWidth)
-
   ctx.shadowColor = highlight ? 'rgba(100, 100, 100, 1)' : 'rgba(50, 50, 50, 1)'
   ctx.strokeStyle = highlight
     ? 'rgba(225, 225, 225, 1)'
