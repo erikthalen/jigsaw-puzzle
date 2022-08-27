@@ -43,7 +43,7 @@ export const puzzle = async ({
     done: false,
     startTime: Date.now(),
     attraction,
-    size: { x: pieces.x, y: pieces.y },
+    size: pieces,
     pieces: makePieces(pieces),
   }
 
@@ -51,12 +51,11 @@ export const puzzle = async ({
     url: img,
     zoom: 1,
     position: { x: 0, y: 0 },
+    size: { x: width, y: height },
     canvas,
     ctx,
     image,
     useCache: false,
-    height,
-    width,
   }
 
   let state = {}
@@ -68,8 +67,8 @@ export const puzzle = async ({
     initScale:
       initZoom ||
       Math.min(
-        (window.innerWidth / state.ui.width) * 0.9,
-        (window.innerHeight / state.ui.height) * 0.9
+        (window.innerWidth / state.ui.size.x) * 0.9,
+        (window.innerHeight / state.ui.size.y) * 0.9
       ),
   })
   // createPrintLayers(state.puzzle)(state.ui)
@@ -92,13 +91,11 @@ export const puzzle = async ({
     updateUI()
   })
 
-  setTimeout(() => {
-    onInit(state)
-  })
+  setTimeout(() => onInit(state))
 
   const getCursor = ({ x, y }) => {
     const [xpos, ypos] = getTransformedPosition({ x, y })
-    return { x: xpos / state.ui.width, y: ypos / state.ui.height }
+    return { x: xpos / state.ui.size.x, y: ypos / state.ui.size.y }
   }
 
   const handlePointerdown = ({ offsetX: x, offsetY: y }) => {
@@ -151,9 +148,9 @@ export const puzzle = async ({
       state.puzzle = pipe(shuffle(aligned))(initPuzzle)
       updateUI()
     },
-    getState: () => ({ ui: state.ui, puzzle: clone(state.puzzle) }),
+    getState: () => clone(state.puzzle),
     setState: newState => {
-      state.puzzle = pipe(shuffle(aligned))(newState.puzzle)
+      state.puzzle = newState
       updateUI()
     },
     destroy: () => {

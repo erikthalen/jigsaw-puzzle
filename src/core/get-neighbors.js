@@ -1,5 +1,4 @@
 // calculates which pieces are next to given piece
-// breaks if rows/cols are 1
 export const getNeighbors = (i, rows, cols) => {
   const slot = i + 1
 

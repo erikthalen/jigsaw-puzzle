@@ -67,18 +67,15 @@ export const setCursor = puzzle =>
         : 'default'
   })
 
-const order = ['top', 'right', 'bottom', 'left']
-const clockwise = (a, b) => (order.indexOf(a[0]) > order.indexOf(b[0]) ? 1 : -1)
-
 export const paintPiece = (puzzle, ui) => piece => {
   const pos = {
-    x: piece.pos.x * ui.width,
-    y: piece.pos.y * ui.height,
+    x: piece.pos.x * ui.size.x,
+    y: piece.pos.y * ui.size.y,
   }
 
   const size = {
-    x: (1 / puzzle.size.x) * ui.width,
-    y: (1 / puzzle.size.y) * ui.height,
+    x: (1 / puzzle.size.x) * ui.size.x,
+    y: (1 / puzzle.size.y) * ui.size.y,
   }
 
   const { ctx, image } = ui
@@ -88,8 +85,7 @@ export const paintPiece = (puzzle, ui) => piece => {
   ctx.beginPath()
   ctx.translate(pos.x, pos.y + size.y)
 
-  //
-  ;[...Object.entries(piece.sides)].sort(clockwise).forEach((s, idx) => {
+  Object.entries(piece.sides).forEach(s => {
     const pos = {
       x: isVertical(s[0]) ? -size.y : -size.x,
       y: isVertical(s[0]) ? size.x : size.y,
@@ -107,8 +103,8 @@ export const paintPiece = (puzzle, ui) => piece => {
     piece.origin.y * size.y - shapeOffset, // what part of image
     size.x + shapeOffset * 2, // how much of image
     size.y + shapeOffset * 2, // how much of image
-    piece.pos.x / ui.width - shapeOffset, // where on canvas
-    piece.pos.y / ui.height - shapeOffset - size.y, // where on canvas
+    piece.pos.x / ui.size.x - shapeOffset, // where on canvas
+    piece.pos.y / ui.size.y - shapeOffset - size.y, // where on canvas
     size.x + shapeOffset * 2, // how big on canvas
     size.y + shapeOffset * 2 // how big on canvas
   )
@@ -116,7 +112,7 @@ export const paintPiece = (puzzle, ui) => piece => {
   ctx.restore()
 
   const highlight = !puzzle.done && (piece.active || piece.alsoActive)
-  const strokeWidth = 1 / Math.max(ui.zoom, 1)
+  const strokeWidth = 2 / Math.max(ui.zoom, 1)
 
   ctx.shadowColor = highlight ? 'rgba(100, 100, 100, 1)' : 'rgba(50, 50, 50, 1)'
   ctx.strokeStyle = highlight
