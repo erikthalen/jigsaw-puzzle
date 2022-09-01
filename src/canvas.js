@@ -74,28 +74,33 @@ export const paintPiece = (puzzle, ui) => piece => {
   }
 
   const size = {
-    x: (1 / puzzle.size.x) * ui.size.x,
-    y: (1 / puzzle.size.y) * ui.size.y,
+    x: ui.size.x / puzzle.size.x,
+    y: ui.size.y / puzzle.size.y,
   }
+
+  const path = ui.shapes[piece.id]
 
   const { ctx, image } = ui
   const shapeOffset = Math.max(size.x, size.y)
 
   ctx.save()
-  ctx.beginPath()
-  ctx.translate(pos.x, pos.y + size.y)
+  ctx.translate(pos.x, pos.y)
 
-  Object.entries(piece.sides).forEach(s => {
-    const pos = {
-      x: isVertical(s[0]) ? -size.y : -size.x,
-      y: isVertical(s[0]) ? size.x : size.y,
-    }
+  const highlight = !puzzle.done && (piece.active || piece.alsoActive)
+  const strokeWidth = 3 / Math.max(ui.zoom, 2)
 
-    drawSide(ctx, s, pos, size)
-  })
+  ctx.shadowColor = highlight ? 'rgba(100, 100, 100, 1)' : 'rgba(50, 50, 50, 1)'
+  ctx.shadowBlur = strokeWidth
+  ctx.shadowOffsetX = ctx.shadowOffsetY = -strokeWidth / 2
 
-  ctx.closePath()
-  ctx.clip()
+  ctx.strokeStyle = 'rgba(220, 220, 220, 1)'
+  ctx.lineWidth = highlight ? strokeWidth * 2 : strokeWidth
+
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+
+  ctx.stroke(path)
+  ctx.clip(path)
 
   ctx.drawImage(
     image, // image
@@ -104,46 +109,10 @@ export const paintPiece = (puzzle, ui) => piece => {
     size.x + shapeOffset * 2, // how much of image
     size.y + shapeOffset * 2, // how much of image
     piece.pos.x / ui.size.x - shapeOffset, // where on canvas
-    piece.pos.y / ui.size.y - shapeOffset - size.y, // where on canvas
+    piece.pos.y / ui.size.y - shapeOffset, // where on canvas
     size.x + shapeOffset * 2, // how big on canvas
     size.y + shapeOffset * 2 // how big on canvas
   )
 
   ctx.restore()
-
-  const highlight = !puzzle.done && (piece.active || piece.alsoActive)
-  const strokeWidth = 2 / Math.max(ui.zoom, 1)
-
-  ctx.shadowColor = highlight ? 'rgba(100, 100, 100, 1)' : 'rgba(50, 50, 50, 1)'
-  ctx.strokeStyle = highlight
-    ? 'rgba(225, 225, 225, 1)'
-    : 'rgba(220, 220, 220, 1)'
-  ctx.shadowBlur = highlight ? strokeWidth * 2 : strokeWidth
-  ctx.lineWidth = highlight ? strokeWidth * 2 : strokeWidth
-
-  ctx.shadowOffsetX = ctx.shadowOffsetY = -1
-  ctx.lineCap = 'round'
-  ctx.lineJoin = 'round'
-
-  ctx.stroke()
-}
-
-function drawSide(ctx, [side, shape], pos, puzzle) {
-  ctx.translate(0, pos.x)
-
-  const size = isVertical(side) ? puzzle.x : puzzle.y
-
-  if (shape === 'flat') {
-    ctx.lineTo(pos.y, 0)
-  } else {
-    const res =
-      shape === 'in'
-        ? bezierInv(bezier(size, Math.min(puzzle.x, puzzle.y)))
-        : bezier(size, Math.min(puzzle.x, puzzle.y))
-    res.forEach(b => {
-      ctx.bezierCurveTo(b.cx1, b.cy1, b.cx2, b.cy2, b.ex, b.ey)
-    })
-  }
-
-  ctx.rotate(Math.PI / 2)
 }

@@ -13,6 +13,16 @@ body {
   --image-width: calc(var(--canvas-width) + var(--border-width) * 2);
 }
 
+#demo {
+  position: fixed;
+  left: 20px;
+  top: 20px;
+  z-index: 1;
+  border: 1px solid;
+  height: 400px;
+  width: 400px;
+}
+
 #app {
   position: relative;
   display: block;

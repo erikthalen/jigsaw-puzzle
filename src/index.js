@@ -10,6 +10,7 @@ import { setStatus } from './core/set-status.js'
 import './utils/safariDrawImageFix.js'
 import pan, { getTransformedPosition } from './utils/pan.js'
 import { makeCanvas, loadImage, paint, resize, setCursor } from './canvas.js'
+import { createPieces } from './utils/create-piece.js'
 
 export const puzzle = async ({
   element,
@@ -55,7 +56,8 @@ export const puzzle = async ({
     canvas,
     ctx,
     image,
-    useCache: false,
+    dpi: window.devicePixelRatio,
+    shapes: createPieces(width / pieces.x, height / pieces.y, initPuzzle.pieces),
   }
 
   let state = {}
@@ -64,6 +66,7 @@ export const puzzle = async ({
   state.ui = paint(state.puzzle)(initUI)
 
   const { zoom, restore } = pan(canvas, {
+    dpi: window.devicePixelRatio,
     initScale:
       initZoom ||
       Math.min(
@@ -94,7 +97,7 @@ export const puzzle = async ({
   setTimeout(() => onInit(state))
 
   const getCursor = ({ x, y }) => {
-    const [xpos, ypos] = getTransformedPosition({ x, y })
+    const [xpos, ypos] = getTransformedPosition({ x, y }, window.devicePixelRatio)
     return { x: xpos / state.ui.size.x, y: ypos / state.ui.size.y }
   }
 
