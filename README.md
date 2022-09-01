@@ -23,4 +23,5 @@ p.setState(state)        // load game
 p.destroy()              // kill puzzle
 p.getZoom()              // current zoom
 p.setZoom()              // set zoom
+p.centralize()           // pan to center
 ```

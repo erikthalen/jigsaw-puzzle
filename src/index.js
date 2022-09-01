@@ -165,6 +165,6 @@ export const puzzle = async ({
     },
     setZoom: zoom,
     getZoom: () => state.ui.zoom,
-    restorePan: restore,
+    centralize: restore,
   }
 }
