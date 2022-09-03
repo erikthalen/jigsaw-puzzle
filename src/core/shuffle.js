@@ -15,10 +15,15 @@ export const shuffle =
             ...piece,
             connections: [],
             pos: {
-              x: ((i % puzzle.size.x) / puzzle.size.x + randomBetween(0.015)) * 2 - 0.42,
-              y:
-                (Math.floor(i / puzzle.size.x) / puzzle.size.y +
-                randomBetween(0.015)) * 2 - 0.42,
+              x: (i % puzzle.size.x) / puzzle.size.x * 2 - 0.4 + randomBetween(0.03),
+              y: Math.floor(i / puzzle.size.x) / puzzle.size.y * 2 - 0.4 + randomBetween(0.03),
+              // x:
+              //   ((i % puzzle.size.x) / puzzle.size.x + randomBetween(0.015)) *
+              //   2,
+              // y:
+              //   (Math.floor(i / puzzle.size.x) / puzzle.size.y +
+              //     randomBetween(0.015)) *
+              //   2,
             },
           }))
         : puzzle.pieces.map(piece => ({

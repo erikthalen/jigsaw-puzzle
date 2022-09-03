@@ -1,6 +1,4 @@
 import { tap } from './utils/utils.js'
-import { isVertical } from './utils/sides.js'
-import { bezier, bezierInv } from './utils/bezier.js'
 
 export const loadImage = src =>
   new Promise(resolve => {
@@ -36,6 +34,10 @@ export const makeCanvas = element => {
 
     resize(canvas)
   }
+  
+  ctx.strokeStyle = 'rgba(220, 220, 220, 1)'
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
 
   return {
     canvas,
@@ -87,17 +89,13 @@ export const paintPiece = (puzzle, ui) => piece => {
   ctx.translate(pos.x, pos.y)
 
   const highlight = !puzzle.done && (piece.active || piece.alsoActive)
-  const strokeWidth = 3 / Math.max(ui.zoom, 2)
+  const strokeWidth = 4 / Math.max(ui.zoom, 2)
 
   ctx.shadowColor = highlight ? 'rgba(100, 100, 100, 1)' : 'rgba(50, 50, 50, 1)'
   ctx.shadowBlur = strokeWidth
   ctx.shadowOffsetX = ctx.shadowOffsetY = -strokeWidth / 2
 
-  ctx.strokeStyle = 'rgba(220, 220, 220, 1)'
   ctx.lineWidth = highlight ? strokeWidth * 2 : strokeWidth
-
-  ctx.lineCap = 'round'
-  ctx.lineJoin = 'round'
 
   ctx.stroke(path)
   ctx.clip(path)

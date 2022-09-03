@@ -1,7 +1,4 @@
-export const tap = fn => x => {
-  fn(x)
-  return x
-}
+export const tap = fn => x => { fn(x); return x }
 
 // random number 0 - 1, based on hash
 export const random = (hash = Math.random()) =>

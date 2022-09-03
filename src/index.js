@@ -56,8 +56,12 @@ export const puzzle = async ({
     canvas,
     ctx,
     image,
-    dpi: window.devicePixelRatio,
-    shapes: createPieces(width / pieces.x, height / pieces.y, initPuzzle.pieces),
+    dpi: Math.min(2, window.devicePixelRatio),
+    shapes: createPieces(
+      width / pieces.x,
+      height / pieces.y,
+      initPuzzle.pieces
+    ),
   }
 
   let state = {}
@@ -66,7 +70,7 @@ export const puzzle = async ({
   state.ui = paint(state.puzzle)(initUI)
 
   const { zoom, restore } = pan(canvas, {
-    dpi: window.devicePixelRatio,
+    dpi: Math.min(2, window.devicePixelRatio),
     initScale:
       initZoom ||
       Math.min(
@@ -74,11 +78,9 @@ export const puzzle = async ({
         (window.innerHeight / state.ui.size.y) * 0.9
       ),
   })
-  // createPrintLayers(state.puzzle)(state.ui)
 
   const updateUI = () => {
     state.ui = pipe(paint(state.puzzle), setCursor(state.puzzle))(state.ui)
-    // state.ui.useCache = puzzle.status !== 'active'
   }
 
   canvas.addEventListener('pan', e => {
@@ -97,7 +99,10 @@ export const puzzle = async ({
   setTimeout(() => onInit(state))
 
   const getCursor = ({ x, y }) => {
-    const [xpos, ypos] = getTransformedPosition({ x, y }, window.devicePixelRatio)
+    const [xpos, ypos] = getTransformedPosition(
+      { x, y },
+      Math.min(2, window.devicePixelRatio)
+    )
     return { x: xpos / state.ui.size.x, y: ypos / state.ui.size.y }
   }
 
