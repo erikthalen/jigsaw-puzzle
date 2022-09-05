@@ -55,7 +55,7 @@ export default (
   canvas.style.touchAction = 'none'
   canvas.style.userSelect = 'none'
   canvas.style.webkitUserSelect = 'none'
-  canvas.style.overscrollBehaviour = 'contain'
+  canvas.style.overscrollBehavior = 'contain'
 
   let fingers = {}
   let lastDistance = null
@@ -91,7 +91,6 @@ export default (
     e.preventDefault()
 
     if (!fingers[e.pointerId]) return
-    if (Object.keys(fingers).length !== 2) return
 
     fingers[e.pointerId] = {
       x: e.offsetX,
@@ -102,19 +101,25 @@ export default (
 
     const fingersArray = Object.values(fingers)
 
-    const distance = Math.sqrt(
-      Math.pow(fingersArray[1].x - fingersArray[0].x, 2) +
-        Math.pow(fingersArray[1].y - fingersArray[0].y, 2)
-    )
-
     const { position } = move({
       x: fingers[e.pointerId].deltaX * dpi * 0.7,
       y: fingers[e.pointerId].deltaY * dpi * 0.7,
     })
 
+    const distance =
+      Object.keys(fingers).length !== 2
+        ? 1
+        : Math.sqrt(
+            Math.pow(fingersArray[1].x - fingersArray[0].x, 2) +
+              Math.pow(fingersArray[1].y - fingersArray[0].y, 2)
+          )
+
     const { scale } = zoom({
       focal: { x: e.offsetX * dpi, y: e.offsetY * dpi },
-      zoom: !lastDistance ? 1 : 1 + (distance - lastDistance) / 200,
+      zoom:
+        Object.keys(fingers).length !== 2 || !lastDistance
+          ? 1
+          : 1 + (distance - lastDistance) / 200,
     })
 
     lastDistance = distance

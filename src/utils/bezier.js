@@ -27,34 +27,43 @@ export const move = (curve, to) => {
   return res
 }
 
+export const inverse = curve => {
+  const res = curve.map(part => {
+    return part.map(point => {
+      return [point[0], point[1] * -1]
+    })
+  })
+  return res
+}
+
 export const bezier = ({ knobsize = 1, length = 100 } = {}) => {
   const middle = length / 2
 
   return [
     // left shoulder
     [
-      [0,                       0],
-      [middle - knobsize * 20,  knobsize * 4],
-      [middle - knobsize * 13,  0],
+      [0, 0],
+      [middle - knobsize * 20, knobsize * 4],
+      [middle - knobsize * 13, 0],
     ],
 
     // left neck
     [
-      [middle - knobsize * 13,  0],
-      [middle - knobsize * 10,  knobsize * -2],
-      [middle - knobsize * 12,  knobsize * -5],
+      [middle - knobsize * 13, 0],
+      [middle - knobsize * 10, knobsize * -2],
+      [middle - knobsize * 12, knobsize * -5],
     ],
 
     // left head
     [
-      [middle - knobsize * 12,  knobsize * -5],
-      [middle - knobsize * 30,  knobsize * -30],
-      [middle,                  knobsize * -30],
+      [middle - knobsize * 12, knobsize * -5],
+      [middle - knobsize * 30, knobsize * -30],
+      [middle, knobsize * -30],
     ],
 
     // right head
     [
-      [middle,                  knobsize * -30],
+      [middle, knobsize * -30],
       [middle - knobsize * -30, knobsize * -30],
       [middle - knobsize * -12, knobsize * -5],
     ],
@@ -70,16 +79,7 @@ export const bezier = ({ knobsize = 1, length = 100 } = {}) => {
     [
       [middle - knobsize * -13, 0],
       [middle - knobsize * -20, knobsize * 4],
-      [length,                  0],
+      [length, 0],
     ],
   ]
-}
-
-export const bezierInv = (curve, y = 1) => {
-  const res = curve.map(part => {
-    return part.map(point => {
-      return [point[0] * y, point[1] * -1]
-    })
-  })
-  return res
 }

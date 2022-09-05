@@ -1,6 +1,6 @@
-import { bezier, bezierInv, rotate, move, rotatePoint } from './bezier'
+import { bezier, inverse, rotate, move, rotatePoint } from './bezier'
 
-export const createPiece = ({ size, shapes, knobsize }) => {
+export const cutPiece = ({ size, shapes, knobsize }) => {
   const path = new Path2D()
 
   if (!shapes.length === 4) {
@@ -8,12 +8,11 @@ export const createPiece = ({ size, shapes, knobsize }) => {
     return
   }
 
-  const angles = [0, 90, 180, 270]
   const corners = [
-    { x: 0, y: 0 },
-    { x: size.x, y: 0 },
-    { x: size.x, y: size.y },
-    { x: 0, y: size.y },
+    { x: 0, y: 0, angle: 0 },
+    { x: size.x, y: 0, angle: 90 },
+    { x: size.x, y: size.y, angle: 180 },
+    { x: 0, y: size.y, angle: 270 },
   ]
 
   corners.forEach((corner, idx) => {
@@ -21,7 +20,7 @@ export const createPiece = ({ size, shapes, knobsize }) => {
     const shape = shapes[idx]
 
     if (shape === 'flat') {
-      const end = rotatePoint(corner, angles[idx], [
+      const end = rotatePoint(corner, corner.angle, [
         corner.x + length,
         corner.y,
       ])
@@ -30,13 +29,13 @@ export const createPiece = ({ size, shapes, knobsize }) => {
     } else {
       const bez = bezier({
         length,
-        knobsize,
+        knobsize: knobsize[idx],
       })
 
       const curve =
         shape === 'in'
-          ? rotate(move(bezierInv(bez), corner), angles[idx])
-          : rotate(move(bez, corner), angles[idx])
+          ? rotate(move(inverse(bez), corner), corner.angle)
+          : rotate(move(bez, corner), corner.angle)
 
       curve.forEach(p => path.bezierCurveTo(...p.flat()))
     }
@@ -47,17 +46,23 @@ export const createPiece = ({ size, shapes, knobsize }) => {
   return path
 }
 
-export const createPieces = (width, height, arr) => {
+export const cutPieces = (width, height, arr) => {
   return arr.reduce((acc, cur) => {
+    const sides = Object.values(cur.sides)
+    const shapes = sides.map(({ shape }) => shape)
+    const knobsize = sides.map(
+      ({ size }) => ((0.6 + size * 0.4) * Math.min(width, height)) / 110
+    )
+    console.log(shapes, knobsize)
     return {
       ...acc,
-      [cur.id]: createPiece({
+      [cur.id]: cutPiece({
         size: {
           x: width,
           y: height,
         },
-        shapes: Object.values(cur.sides),
-        knobsize: Math.min(width, height) / 110,
+        shapes,
+        knobsize, // ,
       }),
     }
   }, {})

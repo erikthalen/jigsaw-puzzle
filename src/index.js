@@ -1,4 +1,4 @@
-import { pipe, tap } from './utils/utils.js'
+import { pipe } from './utils/utils.js'
 import { makePieces } from './core/make-pieces.js'
 import { shuffle } from './core/shuffle.js'
 import { activate, deactivate } from './core/activate.js'
@@ -10,14 +10,14 @@ import { setStatus } from './core/set-status.js'
 import './utils/safariDrawImageFix.js'
 import pan, { getTransformedPosition } from './utils/pan.js'
 import { makeCanvas, loadImage, paint, resize, setCursor } from './canvas.js'
-import { createPieces } from './utils/create-piece.js'
+import { cutPieces } from './utils/create-piece.js'
 
 export const puzzle = async ({
   element,
   image: img = '',
   pieces = { x: 6, y: 4 },
   attraction = 5,
-  aligned = false,
+  aligned = true,
   zoom: initZoom,
   beforeInit = () => {},
   onInit = () => {},
@@ -57,11 +57,7 @@ export const puzzle = async ({
     ctx,
     image,
     dpi: Math.min(2, window.devicePixelRatio),
-    shapes: createPieces(
-      width / pieces.x,
-      height / pieces.y,
-      initPuzzle.pieces
-    ),
+    shapes: cutPieces(width / pieces.x, height / pieces.y, initPuzzle.pieces),
   }
 
   let state = {}
@@ -99,10 +95,7 @@ export const puzzle = async ({
   setTimeout(() => onInit(state))
 
   const getCursor = ({ x, y }) => {
-    const [xpos, ypos] = getTransformedPosition(
-      { x, y },
-      Math.min(2, window.devicePixelRatio)
-    )
+    const [xpos, ypos] = getTransformedPosition({ x, y }, state.ui.dpi)
     return { x: xpos / state.ui.size.x, y: ypos / state.ui.size.y }
   }
 

@@ -1,13 +1,25 @@
 import { allSides } from '../utils/sides.js'
 import { random } from '../utils/utils.js'
 
-const oppositeOf = x => (x === 'out' ? 'in' : 'out')
+const oppositeOf = ({ shape, size }) => {
+  console.log(shape, size)
+  return {
+    shape: shape === 'out' ? 'in' : 'out',
+    size: size,
+  }
+}
+
 const order = ['top', 'right', 'bottom', 'left']
-const clockwise = (a, b) => (order.indexOf(a[0]) > order.indexOf(b[0]) ? 1 : -1)
+const clockwise = (a, b) => {
+console.log(a[0])
+  return order.indexOf(a[0]) > order.indexOf(b[0]) ? 1 : -1
+}
 
 export const makeShapes = (acc, piece) => {
-  const neighborShape = (id, side) =>
-    acc.find(piece => piece.id === id)?.sides[
+  const neighborShape = (id, side) => {
+    const piece = acc.find(piece => piece.id === id)
+
+    return piece?.sides[
       {
         top: 'bottom',
         right: 'left',
@@ -15,21 +27,26 @@ export const makeShapes = (acc, piece) => {
         left: 'right',
       }[side]
     ]
+  }
 
   const flatSides = ({ neighbors }) =>
     allSides
       .filter(side => !Object.keys(neighbors).includes(side))
-      .reduce((acc, side) => ({ [side]: 'flat', ...acc }), {})
+      .reduce(
+        (acc, side) => ({ [side]: { shape: 'flat', size: 1 }, ...acc }),
+        {}
+      )
 
   const shapedSides = ({ neighbors }) =>
     Object.keys(neighbors).reduce((acc, side) => {
       const neighbor = neighborShape(neighbors[side], side)
+
       return {
         [side]: neighbor
           ? oppositeOf(neighbor)
           : random() >= 0.5
-          ? 'out'
-          : 'in',
+          ? { shape: 'out', size: Math.random() }
+          : { shape: 'in', size: Math.random() },
         ...acc,
       }
     }, {})

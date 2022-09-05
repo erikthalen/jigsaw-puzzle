@@ -1,11 +1,25 @@
 import { tap } from './utils/utils.js'
+import { resizeImage } from './utils/resize-image.js'
+
+const scales = [...Array(20)].map((_, i) => Math.floor((1 - i / 20) * 20) / 20)
+
+console.log(scales)
 
 export const loadImage = src =>
   new Promise(resolve => {
-    var image = new Image()
-    // image.crossOrigin = 'anonymous'
-    image.onload = () =>
+    const image = new Image()
+
+    image.onload = () => {
+      // const images = scales.map(scale => ({
+      //   image: resizeImage(image, scale),
+      //   width: image.width,
+      //   height: image.height,
+      // }))
+
+      // console.log(images)
+
       resolve({ image, width: image.width, height: image.height })
+    }
 
     image.src = src
   })
@@ -34,7 +48,7 @@ export const makeCanvas = element => {
 
     resize(canvas)
   }
-  
+
   ctx.strokeStyle = 'rgba(220, 220, 220, 1)'
   ctx.lineCap = 'round'
   ctx.lineJoin = 'round'
@@ -70,46 +84,41 @@ export const setCursor = puzzle =>
   })
 
 export const paintPiece = (puzzle, ui) => piece => {
-  const pos = {
-    x: piece.pos.x * ui.size.x,
-    y: piece.pos.y * ui.size.y,
-  }
-
   const size = {
     x: ui.size.x / puzzle.size.x,
     y: ui.size.y / puzzle.size.y,
   }
 
+  const { ctx, image } = ui
   const path = ui.shapes[piece.id]
 
-  const { ctx, image } = ui
+  //
   const shapeOffset = Math.max(size.x, size.y)
 
   ctx.save()
-  ctx.translate(pos.x, pos.y)
+  ctx.translate(piece.pos.x * ui.size.x, piece.pos.y * ui.size.y)
 
   const highlight = !puzzle.done && (piece.active || piece.alsoActive)
-  const strokeWidth = 4 / Math.max(ui.zoom, 2)
-
-  ctx.shadowColor = highlight ? 'rgba(100, 100, 100, 1)' : 'rgba(50, 50, 50, 1)'
-  ctx.shadowBlur = strokeWidth
-  ctx.shadowOffsetX = ctx.shadowOffsetY = -strokeWidth / 2
+  const strokeWidth = 8 / Math.max(ui.zoom, 4)
 
   ctx.lineWidth = highlight ? strokeWidth * 2 : strokeWidth
+  ctx.shadowOffsetX = ctx.shadowOffsetY = -strokeWidth / 2
+  ctx.shadowBlur = strokeWidth
+  ctx.shadowColor = highlight ? 'rgba(100, 100, 100, 1)' : 'rgba(50, 50, 50, 1)'
 
   ctx.stroke(path)
   ctx.clip(path)
 
   ctx.drawImage(
-    image, // image
+    image,
     piece.origin.x * size.x - shapeOffset, // what part of image
     piece.origin.y * size.y - shapeOffset, // what part of image
-    size.x + shapeOffset * 2, // how much of image
-    size.y + shapeOffset * 2, // how much of image
+    size.x + shapeOffset * ui.dpi, // how much of image
+    size.y + shapeOffset * ui.dpi, // how much of image
     piece.pos.x / ui.size.x - shapeOffset, // where on canvas
     piece.pos.y / ui.size.y - shapeOffset, // where on canvas
-    size.x + shapeOffset * 2, // how big on canvas
-    size.y + shapeOffset * 2 // how big on canvas
+    size.x + shapeOffset * ui.dpi, // how big on canvas
+    size.y + shapeOffset * ui.dpi // how big on canvas
   )
 
   ctx.restore()
