@@ -53,7 +53,6 @@ export const cutPieces = (width, height, arr) => {
     const knobsize = sides.map(
       ({ size }) => ((0.6 + size * 0.4) * Math.min(width, height)) / 110
     )
-    console.log(shapes, knobsize)
     return {
       ...acc,
       [cur.id]: cutPiece({
@@ -62,7 +61,7 @@ export const cutPieces = (width, height, arr) => {
           y: height,
         },
         shapes,
-        knobsize, // ,
+        knobsize,
       }),
     }
   }, {})

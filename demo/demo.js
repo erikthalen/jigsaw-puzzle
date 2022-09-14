@@ -24,8 +24,8 @@ const options = {
   pieces: { x: 3, y: 2 },
   attraction: 3,
   aligned: true,
+  individualize: false,
   beforeInit: canvas => {
-    // console.log('before init:', canvas)
     canvas.style.opacity = 0
   },
   onInit: state => {

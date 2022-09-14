@@ -11,11 +11,10 @@ const oppositeOf = ({ shape, size }) => {
 
 const order = ['top', 'right', 'bottom', 'left']
 const clockwise = (a, b) => {
-console.log(a[0])
   return order.indexOf(a[0]) > order.indexOf(b[0]) ? 1 : -1
 }
 
-export const makeShapes = (acc, piece) => {
+export const makeShapes = individualize => (acc, piece) => {
   const neighborShape = (id, side) => {
     const piece = acc.find(piece => piece.id === id)
 
@@ -45,8 +44,8 @@ export const makeShapes = (acc, piece) => {
         [side]: neighbor
           ? oppositeOf(neighbor)
           : random() >= 0.5
-          ? { shape: 'out', size: Math.random() }
-          : { shape: 'in', size: Math.random() },
+          ? { shape: 'out', size: individualize ? Math.random() : 1 }
+          : { shape: 'in', size: individualize ? Math.random() : 1 },
         ...acc,
       }
     }, {})

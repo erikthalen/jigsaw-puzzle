@@ -18,6 +18,7 @@ export const puzzle = async ({
   pieces = { x: 6, y: 4 },
   attraction = 5,
   aligned = true,
+  individualize = false,
   zoom: initZoom,
   beforeInit = () => {},
   onInit = () => {},
@@ -45,7 +46,7 @@ export const puzzle = async ({
     startTime: Date.now(),
     attraction,
     size: pieces,
-    pieces: makePieces(pieces),
+    pieces: makePieces(pieces, individualize),
   }
 
   const initUI = {
