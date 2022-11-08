@@ -10,6 +10,10 @@ import { puzzle } from 'jigsaw-puzzle'
 const p = await puzzle({
   element: '#app',
   image: 'image.jpg',
+  /* ...optionalParameters */
+})
+
+const optionalParameters = {
   pieces: { x: 6, y: 4 },
   attraction: 5,   // distance to snap pieces
   aligned: true,   // don't overlap pieces on start
@@ -18,8 +22,7 @@ const p = await puzzle({
   onInit: state => {},
   onChange: state => {},
   onComplete: state => {}
-})
-
+}
 
 p.newGame()              // start over
 let state = p.getState() // save game
