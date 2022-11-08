@@ -1,5 +1,9 @@
 [demo](https://gto3y.csb.app/)
 
+```bash
+yarn add jigsaw-puzzle
+```
+
 ```js
 import { puzzle } from 'jigsaw-puzzle'
 
