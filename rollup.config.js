@@ -1,4 +1,5 @@
 import { terser } from 'rollup-plugin-terser'
+import strip from '@rollup/plugin-strip'
 
 export default {
   input: 'src/index.js',
@@ -18,5 +19,5 @@ export default {
       format: 'iife',
     },
   ],
-  plugins: [terser()],
+  plugins: [terser(), strip()],
 }
