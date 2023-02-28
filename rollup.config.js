@@ -4,16 +4,16 @@ export default {
   input: 'src/index.js',
   output: [
     {
-      file: 'dist/jigsaw-puzzle.cjs.js',
+      file: 'dist/cjs/jigsaw-puzzle.js',
       format: 'cjs',
       exports: 'auto',
     },
     {
-      file: 'dist/jigsaw-puzzle.esm.mjs',
+      file: 'dist/esm/jigsaw-puzzle.js',
       format: 'es',
     },
     {
-      file: 'dist/jigsaw-puzzle.min.js',
+      file: 'dist/min/jigsaw-puzzle.js',
       name: 'jigsawPuzzle',
       format: 'iife',
     },
