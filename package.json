@@ -22,7 +22,6 @@
   ],
   "devDependencies": {
     "@rollup/plugin-strip": "^3.0.2",
-    "cors": "^2.8.5",
     "express": "^4.18.1",
     "rollup": "^2.75.4",
     "rollup-plugin-terser": "^7.0.2"

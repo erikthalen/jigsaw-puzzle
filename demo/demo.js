@@ -1,4 +1,4 @@
-import { puzzle } from './jigsaw-puzzle.esm.mjs'
+import { puzzle } from './esm/jigsaw-puzzle.js'
 
 const $ = selector => document.querySelector(selector)
 
@@ -14,7 +14,6 @@ const images = [
   'https://images.unsplash.com/photo-1529982567978-dbaa7babe4df?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=800&q=80',
   'https://artsourceinternational.com/wp-content/uploads/2018/04/WOR0006.jpg',
   'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fmedicinetoday.com.au%2Fsites%2Fdefault%2Ffiles%2FDermQuiz-Figure.jpg&f=1&nofb=1',
-  'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fallhdwallpapers.com%2Fwp-content%2Fuploads%2F2015%2F07%2FDesert-6.jpg&f=1&nofb=1',
   'https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fwww.customwallpaper.net.au%2Fwp-content%2Fuploads%2F2016%2F04%2FAdobeStock_96051485.jpg&f=1&nofb=1'
 ]
 
@@ -48,15 +47,6 @@ Y.value = options.pieces.y
 let p = await puzzle(options)
 
 window.puzzle = p
-
-// const tick = () => {
-//   if(p.getZoom() >= 0.1) {
-//     requestAnimationFrame(tick)
-//   }
-
-//   p.setZoom(0.99)
-// }
-// tick()
 
 newGame.addEventListener('click', async () => p.newGame())
 

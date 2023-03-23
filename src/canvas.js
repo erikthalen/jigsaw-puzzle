@@ -1,26 +1,9 @@
 import { tap } from './utils/utils.js'
-import { resizeImage } from './utils/resize-image.js'
-
-const scales = [...Array(20)].map((_, i) => Math.floor((1 - i / 20) * 20) / 20)
-
-console.log(scales)
 
 export const loadImage = src =>
   new Promise(resolve => {
     const image = new Image()
-
-    image.onload = () => {
-      // const images = scales.map(scale => ({
-      //   image: resizeImage(image, scale),
-      //   width: image.width,
-      //   height: image.height,
-      // }))
-
-      // console.log(images)
-
-      resolve({ image, width: image.width, height: image.height })
-    }
-
+    image.onload = () => resolve(image)
     image.src = src
   })
 

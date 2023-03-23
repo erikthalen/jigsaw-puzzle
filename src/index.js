@@ -12,6 +12,54 @@ import pan, { getTransformedPosition } from './utils/pan.js'
 import { makeCanvas, loadImage, paint, resize, setCursor } from './canvas.js'
 import { cutPieces } from './utils/create-piece.js'
 
+const createPiecesCanvas = (image, piecesData, numberOfPieces, dpi = 2) => {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+
+  const pieceWidth = image.width / numberOfPieces.x
+  const pieceHeight = image.height / numberOfPieces.y
+
+  const extraSpaceNeeded = Math.round(Math.max(pieceWidth, pieceHeight) / 2)
+
+  canvas.width = image.width + numberOfPieces.x * extraSpaceNeeded
+  canvas.height = image.height + numberOfPieces.y * extraSpaceNeeded
+
+  const paths = cutPieces(pieceWidth, pieceHeight, piecesData)
+
+  piecesData.forEach((piece) => {
+    ctx.save()
+    ctx.translate(
+      piece.origin.x * (pieceWidth + extraSpaceNeeded) + extraSpaceNeeded / 2,
+      piece.origin.y * (pieceHeight + extraSpaceNeeded) + extraSpaceNeeded / 2
+    )
+
+    ctx.stroke(paths[piece.id])
+    ctx.clip(paths[piece.id])
+
+    ctx.drawImage(
+      image,
+      piece.origin.x * pieceWidth - extraSpaceNeeded, // what part of image
+      piece.origin.y * pieceHeight - extraSpaceNeeded, // what part of image
+      (numberOfPieces.x + extraSpaceNeeded * 2) * dpi, // how much of image
+      (numberOfPieces.y + extraSpaceNeeded * 2) * dpi, // how much of image
+      -extraSpaceNeeded, // where on canvas
+      -extraSpaceNeeded, // where on canvas
+      (numberOfPieces.x + extraSpaceNeeded * 2) * dpi, // how big on canvas
+      (numberOfPieces.y + extraSpaceNeeded * 2) * dpi // how big on canvas
+    )
+
+    ctx.restore()
+  })
+
+  canvas.style.position = 'fixed'
+  canvas.style.top = '20px'
+  canvas.style.left = '20px'
+  canvas.style.width = '800px'
+  canvas.style.border = '1px solid'
+
+  document.body.append(canvas)
+}
+
 export const puzzle = async ({
   element,
   image: img = '',
@@ -37,7 +85,7 @@ export const puzzle = async ({
 
   beforeInit(canvas)
 
-  const { image, width, height } = await loadImage(img)
+  const image = await loadImage(img)
 
   const initPuzzle = {
     moves: 0,
@@ -53,12 +101,17 @@ export const puzzle = async ({
     url: img,
     zoom: 1,
     position: { x: 0, y: 0 },
-    size: { x: width, y: height },
+    size: { x: image.width, y: image.height },
     canvas,
     ctx,
+    piecesCanvas: createPiecesCanvas(image, initPuzzle.pieces, pieces),
     image,
     dpi: Math.min(2, window.devicePixelRatio),
-    shapes: cutPieces(width / pieces.x, height / pieces.y, initPuzzle.pieces),
+    shapes: cutPieces(
+      image.width / pieces.x,
+      image.height / pieces.y,
+      initPuzzle.pieces
+    ),
   }
 
   let state = {}

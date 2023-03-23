@@ -2,7 +2,6 @@ import { allSides } from '../utils/sides.js'
 import { random } from '../utils/utils.js'
 
 const oppositeOf = ({ shape, size }) => {
-  console.log(shape, size)
   return {
     shape: shape === 'out' ? 'in' : 'out',
     size: size,
