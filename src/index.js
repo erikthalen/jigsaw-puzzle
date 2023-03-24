@@ -21,19 +21,15 @@ const createPiecesCanvas = (image, piecesData, numberOfPieces, dpi = 2) => {
 
   const extraSpaceNeeded = Math.round(Math.max(pieceWidth, pieceHeight) / 2)
 
-  canvas.width = image.width + numberOfPieces.x * extraSpaceNeeded
-  canvas.height = image.height + numberOfPieces.y * extraSpaceNeeded
-
+  canvas.width = pieceWidth + extraSpaceNeeded
+  canvas.height = pieceHeight + extraSpaceNeeded
+  
   const paths = cutPieces(pieceWidth, pieceHeight, piecesData)
+  
+  const piecesRenderData = piecesData.map((piece) => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-  piecesData.forEach((piece) => {
-    ctx.save()
-    ctx.translate(
-      piece.origin.x * (pieceWidth + extraSpaceNeeded) + extraSpaceNeeded / 2,
-      piece.origin.y * (pieceHeight + extraSpaceNeeded) + extraSpaceNeeded / 2
-    )
-
-    ctx.stroke(paths[piece.id])
+    // ctx.stroke(paths[piece.id])
     ctx.clip(paths[piece.id])
 
     ctx.drawImage(
@@ -42,13 +38,16 @@ const createPiecesCanvas = (image, piecesData, numberOfPieces, dpi = 2) => {
       piece.origin.y * pieceHeight - extraSpaceNeeded, // what part of image
       (numberOfPieces.x + extraSpaceNeeded * 2) * dpi, // how much of image
       (numberOfPieces.y + extraSpaceNeeded * 2) * dpi, // how much of image
-      -extraSpaceNeeded, // where on canvas
-      -extraSpaceNeeded, // where on canvas
+      0, // where on canvas
+      0, // where on canvas
       (numberOfPieces.x + extraSpaceNeeded * 2) * dpi, // how big on canvas
       (numberOfPieces.y + extraSpaceNeeded * 2) * dpi // how big on canvas
     )
 
-    ctx.restore()
+    return {
+      imageData: ctx.getImageData(0, 0, canvas.width, canvas.height),
+      x: 0
+    }
   })
 
   canvas.style.position = 'fixed'
