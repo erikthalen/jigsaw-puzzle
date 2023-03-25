@@ -9,63 +9,20 @@ import { clone } from './utils/utils.js'
 import { setStatus } from './core/set-status.js'
 import './utils/safariDrawImageFix.js'
 import pan, { getTransformedPosition } from './utils/pan.js'
-import { makeCanvas, loadImage, paint, resize, setCursor } from './canvas.js'
-import { cutPieces } from './utils/create-piece.js'
-
-const createPiecesCanvas = (image, piecesData, numberOfPieces, dpi = 2) => {
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
-
-  const pieceWidth = image.width / numberOfPieces.x
-  const pieceHeight = image.height / numberOfPieces.y
-
-  const extraSpaceNeeded = Math.round(Math.max(pieceWidth, pieceHeight) / 2)
-
-  canvas.width = pieceWidth + extraSpaceNeeded
-  canvas.height = pieceHeight + extraSpaceNeeded
-  
-  const paths = cutPieces(pieceWidth, pieceHeight, piecesData)
-  
-  const piecesRenderData = piecesData.map((piece) => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-    // ctx.stroke(paths[piece.id])
-    ctx.clip(paths[piece.id])
-
-    ctx.drawImage(
-      image,
-      piece.origin.x * pieceWidth - extraSpaceNeeded, // what part of image
-      piece.origin.y * pieceHeight - extraSpaceNeeded, // what part of image
-      (numberOfPieces.x + extraSpaceNeeded * 2) * dpi, // how much of image
-      (numberOfPieces.y + extraSpaceNeeded * 2) * dpi, // how much of image
-      0, // where on canvas
-      0, // where on canvas
-      (numberOfPieces.x + extraSpaceNeeded * 2) * dpi, // how big on canvas
-      (numberOfPieces.y + extraSpaceNeeded * 2) * dpi // how big on canvas
-    )
-
-    return {
-      imageData: ctx.getImageData(0, 0, canvas.width, canvas.height),
-      x: 0
-    }
-  })
-
-  canvas.style.position = 'fixed'
-  canvas.style.top = '20px'
-  canvas.style.left = '20px'
-  canvas.style.width = '800px'
-  canvas.style.border = '1px solid'
-
-  document.body.append(canvas)
-}
+import {
+  makeCanvas,
+  paint,
+  resize,
+  setCursor,
+  createOffscreen,
+} from './canvas.js'
 
 export const puzzle = async ({
   element,
-  image: img = '',
+  image,
   pieces = { x: 6, y: 4 },
   attraction = 5,
   aligned = true,
-  individualize = false,
   zoom: initZoom,
   beforeInit = () => {},
   onInit = () => {},
@@ -84,8 +41,6 @@ export const puzzle = async ({
 
   beforeInit(canvas)
 
-  const image = await loadImage(img)
-
   const initPuzzle = {
     moves: 0,
     status: 'idle',
@@ -93,24 +48,25 @@ export const puzzle = async ({
     startTime: Date.now(),
     attraction,
     size: pieces,
-    pieces: makePieces(pieces, individualize),
+    pieces: makePieces(pieces),
   }
 
   const initUI = {
-    url: img,
     zoom: 1,
     position: { x: 0, y: 0 },
     size: { x: image.width, y: image.height },
     canvas,
     ctx,
-    piecesCanvas: createPiecesCanvas(image, initPuzzle.pieces, pieces),
+    offscreen: await createOffscreen(
+      image,
+      initPuzzle.pieces,
+      pieces,
+      progress => {
+        console.log(progress)
+      }
+    ),
     image,
     dpi: Math.min(2, window.devicePixelRatio),
-    shapes: cutPieces(
-      image.width / pieces.x,
-      image.height / pieces.y,
-      initPuzzle.pieces
-    ),
   }
 
   let state = {}
@@ -119,7 +75,7 @@ export const puzzle = async ({
   state.ui = paint(state.puzzle)(initUI)
 
   const { zoom, restore } = pan(canvas, {
-    dpi: Math.min(2, window.devicePixelRatio),
+    dpi: state.ui.dpi,
     initScale:
       initZoom ||
       Math.min(

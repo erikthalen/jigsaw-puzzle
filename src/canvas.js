@@ -1,11 +1,5 @@
 import { tap } from './utils/utils.js'
-
-export const loadImage = src =>
-  new Promise(resolve => {
-    const image = new Image()
-    image.onload = () => resolve(image)
-    image.src = src
-  })
+import { cutPieces } from './utils/create-piece.js'
 
 export const resize = canvas => {
   const { height, width } = getComputedStyle(canvas.parentElement)
@@ -32,15 +26,102 @@ export const makeCanvas = element => {
     resize(canvas)
   }
 
-  ctx.strokeStyle = 'rgba(220, 220, 220, 1)'
-  ctx.lineCap = 'round'
-  ctx.lineJoin = 'round'
-
   return {
     canvas,
     ctx,
   }
 }
+
+export const createOffscreen = async (
+  image,
+  piecesData,
+  numberOfPieces,
+  onProgress = () => {}
+) => {
+  const pieceWidth = image.width / numberOfPieces.x
+  const pieceHeight = image.height / numberOfPieces.y
+  const extraSpaceNeeded = Math.round(Math.max(pieceWidth, pieceHeight) / 2)
+
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+
+  ctx.msImageSmoothingEnabled = false
+  ctx.mozImageSmoothingEnabled = false
+  ctx.webkitImageSmoothingEnabled = false
+  ctx.imageSmoothingEnabled = false
+
+  canvas.width = (pieceWidth + extraSpaceNeeded) * numberOfPieces.x * 1.1
+  canvas.height = (pieceHeight + extraSpaceNeeded) * numberOfPieces.y * 1.1
+
+  const totalNumberOfPieces = numberOfPieces.x * numberOfPieces.y
+  let piecesProcessed = 0
+
+  const paths = cutPieces(pieceWidth, pieceHeight, piecesData)
+
+  const getPieceData = piece => {
+    return new Promise(resolve => {
+      ctx.save()
+      ctx.setTransform(
+        1,
+        0,
+        0,
+        1,
+        (pieceWidth + extraSpaceNeeded) * piece.origin.x * 1.1,
+        (pieceHeight + extraSpaceNeeded) * piece.origin.y * 1.1
+      )
+
+      // ctx.stroke(paths[piece.id])
+      ctx.clip(paths[piece.id])
+
+      ctx.drawImage(
+        image,
+        piece.origin.x * pieceWidth - extraSpaceNeeded, // what part of image
+        piece.origin.y * pieceHeight - extraSpaceNeeded, // what part of image
+        pieceWidth + extraSpaceNeeded * 2, // how much of image
+        pieceHeight + extraSpaceNeeded * 2, // how much of image
+        -extraSpaceNeeded, // where on canvas
+        -extraSpaceNeeded, // where on canvas
+        pieceWidth + extraSpaceNeeded * 2, // how big on canvas
+        pieceHeight + extraSpaceNeeded * 2 // how big on canvas
+      )
+
+      ctx.restore()
+
+      piecesProcessed++
+
+      onProgress(piecesProcessed / totalNumberOfPieces)
+
+      resolve({
+        id: piece.id,
+        data: {
+          x:
+            ((pieceWidth + extraSpaceNeeded) * piece.origin.x -
+              extraSpaceNeeded / 2) *
+            1.1,
+          y:
+            ((pieceHeight + extraSpaceNeeded) * piece.origin.y -
+              extraSpaceNeeded / 2) *
+            1.1,
+          width: (pieceWidth + extraSpaceNeeded * 2) * 1.05 - extraSpaceNeeded,
+          height:
+            (pieceHeight + extraSpaceNeeded * 2) * 1.05 - extraSpaceNeeded,
+          extraSpaceNeeded,
+        },
+      })
+    })
+  }
+
+  return new Promise(async resolve => {
+    const pieces = new Map()
+    const piecesRenderData = await Promise.all(piecesData.map(getPieceData))
+    piecesRenderData.forEach(piece => {
+      pieces.set(piece.id, piece.data)
+    })
+
+    resolve({ canvas, pieces })
+  })
+}
+
 
 export const clearCanvas = tap(ui => {
   const { canvas, ctx } = ui
@@ -53,7 +134,7 @@ export const clearCanvas = tap(ui => {
 export const paint = puzzle =>
   tap(ui => {
     clearCanvas(ui)
-    puzzle.pieces.map(paintPiece(puzzle, ui))
+    puzzle.pieces.map(paintPiece(ui))
   })
 
 export const setCursor = puzzle =>
@@ -66,43 +147,27 @@ export const setCursor = puzzle =>
         : 'default'
   })
 
-export const paintPiece = (puzzle, ui) => piece => {
-  const size = {
-    x: ui.size.x / puzzle.size.x,
-    y: ui.size.y / puzzle.size.y,
-  }
-
-  const { ctx, image } = ui
-  const path = ui.shapes[piece.id]
-
-  //
-  const shapeOffset = Math.max(size.x, size.y)
-
-  ctx.save()
-  ctx.translate(piece.pos.x * ui.size.x, piece.pos.y * ui.size.y)
-
-  const highlight = !puzzle.done && (piece.active || piece.alsoActive)
-  const strokeWidth = 8 / Math.max(ui.zoom, 4)
-
-  ctx.lineWidth = highlight ? strokeWidth * 2 : strokeWidth
-  ctx.shadowOffsetX = ctx.shadowOffsetY = -strokeWidth / 2
-  ctx.shadowBlur = strokeWidth
-  ctx.shadowColor = highlight ? 'rgba(100, 100, 100, 1)' : 'rgba(50, 50, 50, 1)'
-
-  ctx.stroke(path)
-  ctx.clip(path)
-
-  ctx.drawImage(
-    image,
-    piece.origin.x * size.x - shapeOffset, // what part of image
-    piece.origin.y * size.y - shapeOffset, // what part of image
-    size.x + shapeOffset * ui.dpi, // how much of image
-    size.y + shapeOffset * ui.dpi, // how much of image
-    piece.pos.x / ui.size.x - shapeOffset, // where on canvas
-    piece.pos.y / ui.size.y - shapeOffset, // where on canvas
-    size.x + shapeOffset * ui.dpi, // how big on canvas
-    size.y + shapeOffset * ui.dpi // how big on canvas
+export const paintPiece = (ui) => piece => {
+  ui.ctx.setTransform(
+    ui.zoom,
+    0,
+    0,
+    ui.zoom,
+    piece.pos.x * ui.size.x * ui.zoom + ui.position.x,
+    piece.pos.y * ui.size.y * ui.zoom + ui.position.y
   )
 
-  ctx.restore()
+  const renderPiece = ui.offscreen.pieces.get(piece.id)
+
+  ui.ctx.drawImage(
+    ui.offscreen.canvas,
+    renderPiece.x, // what part of image
+    renderPiece.y, // what part of image
+    renderPiece.width, // how much of image
+    renderPiece.height, // how much of image
+    piece.pos.x / ui.size.x - renderPiece.extraSpaceNeeded / 2, // where on canvas
+    piece.pos.y / ui.size.y - renderPiece.extraSpaceNeeded / 2, // where on canvas
+    renderPiece.width, // how big on canvas
+    renderPiece.height // how big on canvas
+  )
 }

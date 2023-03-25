@@ -159,13 +159,6 @@ var jigsawPuzzle = (function (exports) {
               pos: {
                 x: (i % puzzle.size.x) / puzzle.size.x * 2 - 0.4 + randomBetween(0.03),
                 y: Math.floor(i / puzzle.size.x) / puzzle.size.y * 2 - 0.4 + randomBetween(0.03),
-                // x:
-                //   ((i % puzzle.size.x) / puzzle.size.x + randomBetween(0.015)) *
-                //   2,
-                // y:
-                //   (Math.floor(i / puzzle.size.x) / puzzle.size.y +
-                //     randomBetween(0.015)) *
-                //   2,
               },
             }))
           : puzzle.pieces.map(piece => ({
@@ -700,113 +693,6 @@ var jigsawPuzzle = (function (exports) {
     return [(x * dpi - position.x) / scale, (y * dpi - position.y) / scale]
   };
 
-  const loadImage = src =>
-    new Promise(resolve => {
-      const image = new Image();
-      image.onload = () => resolve(image);
-      image.src = src;
-    });
-
-  const resize = canvas => {
-    const { height, width } = getComputedStyle(canvas.parentElement);
-
-    const dpr = Math.min(2, window.devicePixelRatio);
-
-    canvas.width = parseInt(width, 0) * dpr;
-    canvas.height = parseInt(height, 0) * dpr;
-  };
-
-  const makeCanvas = element => {
-    const canvas =
-      element && element.tagName === 'CANVAS'
-        ? element
-        : document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-
-    if (element && element.tagName !== 'CANVAS') {
-      element.appendChild(canvas);
-
-      canvas.style.width = '100%';
-      canvas.style.height = '100%';
-
-      resize(canvas);
-    }
-
-    ctx.strokeStyle = 'rgba(220, 220, 220, 1)';
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    return {
-      canvas,
-      ctx,
-    }
-  };
-
-  const clearCanvas = tap(ui => {
-    const { canvas, ctx } = ui;
-    ctx.save();
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.restore();
-  });
-
-  const paint = puzzle =>
-    tap(ui => {
-      clearCanvas(ui);
-      puzzle.pieces.map(paintPiece(puzzle, ui));
-    });
-
-  const setCursor = puzzle =>
-    tap(ui => {
-      ui.canvas.style.cursor =
-        puzzle.status === 'active'
-          ? 'grabbing'
-          : puzzle.status === 'ready'
-          ? 'grab'
-          : 'default';
-    });
-
-  const paintPiece = (puzzle, ui) => piece => {
-    const size = {
-      x: ui.size.x / puzzle.size.x,
-      y: ui.size.y / puzzle.size.y,
-    };
-
-    const { ctx, image } = ui;
-    const path = ui.shapes[piece.id];
-
-    //
-    const shapeOffset = Math.max(size.x, size.y);
-
-    ctx.save();
-    ctx.translate(piece.pos.x * ui.size.x, piece.pos.y * ui.size.y);
-
-    const highlight = !puzzle.done && (piece.active || piece.alsoActive);
-    const strokeWidth = 8 / Math.max(ui.zoom, 4);
-
-    ctx.lineWidth = highlight ? strokeWidth * 2 : strokeWidth;
-    ctx.shadowOffsetX = ctx.shadowOffsetY = -strokeWidth / 2;
-    ctx.shadowBlur = strokeWidth;
-    ctx.shadowColor = highlight ? 'rgba(100, 100, 100, 1)' : 'rgba(50, 50, 50, 1)';
-
-    ctx.stroke(path);
-    ctx.clip(path);
-
-    ctx.drawImage(
-      image,
-      piece.origin.x * size.x - shapeOffset, // what part of image
-      piece.origin.y * size.y - shapeOffset, // what part of image
-      size.x + shapeOffset * ui.dpi, // how much of image
-      size.y + shapeOffset * ui.dpi, // how much of image
-      piece.pos.x / ui.size.x - shapeOffset, // where on canvas
-      piece.pos.y / ui.size.y - shapeOffset, // where on canvas
-      size.x + shapeOffset * ui.dpi, // how big on canvas
-      size.y + shapeOffset * ui.dpi // how big on canvas
-    );
-
-    ctx.restore();
-  };
-
   const rotatePoint = (center, degrees, ...args) => {
     const deg = (degrees * Math.PI) / 180;
     const { sin, cos } = Math;
@@ -960,60 +846,183 @@ var jigsawPuzzle = (function (exports) {
     }, {})
   };
 
-  const createPiecesCanvas = (image, piecesData, numberOfPieces, dpi = 2) => {
+  const resize = canvas => {
+    const { height, width } = getComputedStyle(canvas.parentElement);
+
+    const dpr = Math.min(2, window.devicePixelRatio);
+
+    canvas.width = parseInt(width, 0) * dpr;
+    canvas.height = parseInt(height, 0) * dpr;
+  };
+
+  const makeCanvas = element => {
+    const canvas =
+      element && element.tagName === 'CANVAS'
+        ? element
+        : document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    if (element && element.tagName !== 'CANVAS') {
+      element.appendChild(canvas);
+
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+
+      resize(canvas);
+    }
+
+    return {
+      canvas,
+      ctx,
+    }
+  };
+
+  const createOffscreen = async (
+    image,
+    piecesData,
+    numberOfPieces,
+    onProgress
+  ) => {
+    const pieceWidth = image.width / numberOfPieces.x;
+    const pieceHeight = image.height / numberOfPieces.y;
+    const extraSpaceNeeded = Math.round(Math.max(pieceWidth, pieceHeight) / 2);
+
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
 
-    const pieceWidth = image.width / numberOfPieces.x;
-    const pieceHeight = image.height / numberOfPieces.y;
+    ctx.msImageSmoothingEnabled = false;
+    ctx.mozImageSmoothingEnabled = false;
+    ctx.webkitImageSmoothingEnabled = false;
+    ctx.imageSmoothingEnabled = false;
 
-    const extraSpaceNeeded = Math.round(Math.max(pieceWidth, pieceHeight) / 2);
+    canvas.width = (pieceWidth + extraSpaceNeeded) * numberOfPieces.x * 1.1;
+    canvas.height = (pieceHeight + extraSpaceNeeded) * numberOfPieces.y * 1.1;
 
-    canvas.width = pieceWidth + extraSpaceNeeded;
-    canvas.height = pieceHeight + extraSpaceNeeded;
-    
+    const totalNumberOfPieces = numberOfPieces.x * numberOfPieces.y;
+    let piecesProcessed = 0;
+
     const paths = cutPieces(pieceWidth, pieceHeight, piecesData);
-    
-    piecesData.map((piece) => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // ctx.stroke(paths[piece.id])
-      ctx.clip(paths[piece.id]);
+    const getPieceData = piece => {
+      return new Promise(resolve => {
+        ctx.save();
+        ctx.setTransform(
+          1,
+          0,
+          0,
+          1,
+          (pieceWidth + extraSpaceNeeded) * piece.origin.x * 1.1,
+          (pieceHeight + extraSpaceNeeded) * piece.origin.y * 1.1
+        );
 
-      ctx.drawImage(
-        image,
-        piece.origin.x * pieceWidth - extraSpaceNeeded, // what part of image
-        piece.origin.y * pieceHeight - extraSpaceNeeded, // what part of image
-        (numberOfPieces.x + extraSpaceNeeded * 2) * dpi, // how much of image
-        (numberOfPieces.y + extraSpaceNeeded * 2) * dpi, // how much of image
-        0, // where on canvas
-        0, // where on canvas
-        (numberOfPieces.x + extraSpaceNeeded * 2) * dpi, // how big on canvas
-        (numberOfPieces.y + extraSpaceNeeded * 2) * dpi // how big on canvas
-      );
+        // ctx.stroke(paths[piece.id])
+        ctx.clip(paths[piece.id]);
 
-      return {
-        imageData: ctx.getImageData(0, 0, canvas.width, canvas.height),
-        x: 0
-      }
+        ctx.drawImage(
+          image,
+          piece.origin.x * pieceWidth - extraSpaceNeeded, // what part of image
+          piece.origin.y * pieceHeight - extraSpaceNeeded, // what part of image
+          pieceWidth + extraSpaceNeeded * 2, // how much of image
+          pieceHeight + extraSpaceNeeded * 2, // how much of image
+          -extraSpaceNeeded, // where on canvas
+          -extraSpaceNeeded, // where on canvas
+          pieceWidth + extraSpaceNeeded * 2, // how big on canvas
+          pieceHeight + extraSpaceNeeded * 2 // how big on canvas
+        );
+
+        ctx.restore();
+
+        piecesProcessed++;
+
+        onProgress(piecesProcessed / totalNumberOfPieces);
+
+        resolve({
+          id: piece.id,
+          data: {
+            x:
+              ((pieceWidth + extraSpaceNeeded) * piece.origin.x -
+                extraSpaceNeeded / 2) *
+              1.1,
+            y:
+              ((pieceHeight + extraSpaceNeeded) * piece.origin.y -
+                extraSpaceNeeded / 2) *
+              1.1,
+            width: (pieceWidth + extraSpaceNeeded * 2) * 1.05 - extraSpaceNeeded,
+            height:
+              (pieceHeight + extraSpaceNeeded * 2) * 1.05 - extraSpaceNeeded,
+            extraSpaceNeeded,
+          },
+        });
+      })
+    };
+
+    return new Promise(async resolve => {
+      const pieces = new Map();
+      const piecesRenderData = await Promise.all(piecesData.map(getPieceData));
+      piecesRenderData.forEach(piece => {
+        pieces.set(piece.id, piece.data);
+      });
+
+      resolve({ canvas, pieces });
+    })
+  };
+
+
+  const clearCanvas = tap(ui => {
+    const { canvas, ctx } = ui;
+    ctx.save();
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.restore();
+  });
+
+  const paint = puzzle =>
+    tap(ui => {
+      clearCanvas(ui);
+      puzzle.pieces.map(paintPiece(ui));
     });
 
-    canvas.style.position = 'fixed';
-    canvas.style.top = '20px';
-    canvas.style.left = '20px';
-    canvas.style.width = '800px';
-    canvas.style.border = '1px solid';
+  const setCursor = puzzle =>
+    tap(ui => {
+      ui.canvas.style.cursor =
+        puzzle.status === 'active'
+          ? 'grabbing'
+          : puzzle.status === 'ready'
+          ? 'grab'
+          : 'default';
+    });
 
-    document.body.append(canvas);
+  const paintPiece = (ui) => piece => {
+    ui.ctx.setTransform(
+      ui.zoom,
+      0,
+      0,
+      ui.zoom,
+      piece.pos.x * ui.size.x * ui.zoom + ui.position.x,
+      piece.pos.y * ui.size.y * ui.zoom + ui.position.y
+    );
+
+    const renderPiece = ui.offscreen.pieces.get(piece.id);
+
+    ui.ctx.drawImage(
+      ui.offscreen.canvas,
+      renderPiece.x, // what part of image
+      renderPiece.y, // what part of image
+      renderPiece.width, // how much of image
+      renderPiece.height, // how much of image
+      piece.pos.x / ui.size.x - renderPiece.extraSpaceNeeded / 2, // where on canvas
+      piece.pos.y / ui.size.y - renderPiece.extraSpaceNeeded / 2, // where on canvas
+      renderPiece.width, // how big on canvas
+      renderPiece.height // how big on canvas
+    );
   };
 
   const puzzle = async ({
     element,
-    image: img = '',
+    image,
     pieces = { x: 6, y: 4 },
     attraction = 5,
     aligned = true,
-    individualize = false,
     zoom: initZoom,
     beforeInit = () => {},
     onInit = () => {},
@@ -1032,8 +1041,6 @@ var jigsawPuzzle = (function (exports) {
 
     beforeInit(canvas);
 
-    const image = await loadImage(img);
-
     const initPuzzle = {
       moves: 0,
       status: 'idle',
@@ -1041,24 +1048,25 @@ var jigsawPuzzle = (function (exports) {
       startTime: Date.now(),
       attraction,
       size: pieces,
-      pieces: makePieces(pieces, individualize),
+      pieces: makePieces(pieces),
     };
 
     const initUI = {
-      url: img,
       zoom: 1,
       position: { x: 0, y: 0 },
       size: { x: image.width, y: image.height },
       canvas,
       ctx,
-      piecesCanvas: createPiecesCanvas(image, initPuzzle.pieces, pieces),
+      offscreen: await createOffscreen(
+        image,
+        initPuzzle.pieces,
+        pieces,
+        progress => {
+          console.log(progress);
+        }
+      ),
       image,
       dpi: Math.min(2, window.devicePixelRatio),
-      shapes: cutPieces(
-        image.width / pieces.x,
-        image.height / pieces.y,
-        initPuzzle.pieces
-      ),
     };
 
     let state = {};
@@ -1067,7 +1075,7 @@ var jigsawPuzzle = (function (exports) {
     state.ui = paint(state.puzzle)(initUI);
 
     const { zoom, restore } = pan(canvas, {
-      dpi: Math.min(2, window.devicePixelRatio),
+      dpi: state.ui.dpi,
       initScale:
         initZoom ||
         Math.min(
