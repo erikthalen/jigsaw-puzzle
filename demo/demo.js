@@ -2,7 +2,6 @@ import { puzzle } from './esm/jigsaw-puzzle.js'
 
 const $ = selector => document.querySelector(selector)
 
-const solution = $('#solution')
 const newGame = $('#new-game')
 const saveGame = $('#save-game')
 const loadGame = $('#load-game')
